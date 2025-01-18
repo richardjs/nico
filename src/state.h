@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
+#include "coords.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -13,29 +14,12 @@
 // An active stack is one that has 2 or more tokens
 #define MAX_ACTIVE_STACKS 8
 
-#define GRID_SIZE 24
-
 #define MAX_ACTIONS 630
 
 enum Player {
     P1 = 0,
     P2
-}
-
-/*
-    /1,0\       /0,0\           /1,0\
-/0,1\___/2,0\   \___/1,0\   /0,1\___/
-\___/1,1\___/   /0,1\___/   \___/1,1\
-    \___/       \___/1,1\   /0,2\___/
-                    \___/   \___/
-Type H^         Type L^     Type R^
-*/
-
-enum Rotation {
-    H = 0,
-    L,
-    R
-}
+};
 
 struct Action {
     struct Coords start;
@@ -59,5 +43,7 @@ struct State {
 };
 
 void State_new(struct State* state);
+int State_actions(const struct State* state, struct Action actions[]);
+void State_act(struct State* state, const struct Action* action);
 
 #endif
