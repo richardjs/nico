@@ -8,6 +8,7 @@
 #define GRID_SIZE 24
 
 #define NUM_DIRECTIONS 6
+
 enum Direction {
     NORTH = 0,
     NORTHEAST,

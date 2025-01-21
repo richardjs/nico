@@ -9,6 +9,36 @@
 #include "coords.h"
 #include "state.h"
 
+void State_translate(struct State* state, enum Direction direction)
+{
+    bool tiles[GRID_SIZE][GRID_SIZE];
+    uint8_t stacks[GRID_SIZE][GRID_SIZE];
+    memcpy(tiles, state->tiles, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+    memcpy(stacks, state->stacks, sizeof(uint8_t) * GRID_SIZE * GRID_SIZE);
+
+    struct Coords src;
+    struct Coords dest;
+    for (src.q = 0; src.q < GRID_SIZE; src.q++) {
+        for (src.r = 0; src.r < GRID_SIZE; src.r++) {
+            dest = src;
+            Coords_move(&dest, direction);
+
+            state->tiles[dest.q][dest.r] = tiles[src.q][src.r];
+            state->stacks[dest.q][dest.r] = stacks[src.q][src.r];
+        }
+    }
+
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state->active_stacksc[i]; i++) {
+            Coords_move(&state->active_stacks[p][i], direction);
+        }
+    }
+}
+
+void State_normalize(struct State* state)
+{
+}
+
 void State_print(const struct State* state, FILE* stream)
 {
     // Convert to double-height coordinate space; see
