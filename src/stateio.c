@@ -1,13 +1,11 @@
 #include "stateio.h"
-
+#include "coords.h"
+#include "state.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "coords.h"
-#include "state.h"
 
 void State_translate(struct State* state, enum Direction direction)
 {

@@ -15,9 +15,9 @@ clean:
 	rm -f $(objects)
 	rm -f test
 
-coords.o: state.h
-state.o: coords.h tile.h
-stateio.o: coords.h state.h
-test: state.h stateio.h
+coords.o: coords.h state.h
+state.o: coords.h state.h tile.h
+stateio.o: coords.h state.h stateio.h
+test: state.h stateio.h tile.h
 
 # vim: set noexpandtab sts=0 ts=4:
