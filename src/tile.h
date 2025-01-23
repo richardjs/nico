@@ -32,9 +32,9 @@ enum TileDirection {
 
 struct Tile {
     struct Coords origin;
-    enum Rotation rotation;
+    enum TileDirection direction;
 };
 
-void tile_coords(const struct Coords* start_coords, enum TileDirection direction, struct Coords coords[]);
+void Tile_coords(const struct Tile* tile, struct Coords coords[]);
 
 #endif

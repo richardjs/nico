@@ -1,13 +1,12 @@
 #include "tile.h"
 
-void tile_coords(const struct Coords* start_coords, enum TileDirection direction, struct Coords coords[])
+void Tile_coords(const struct Tile* tile, struct Coords coords[])
 {
     int i = 0;
-    coords[i++] = *start_coords;
+    coords[i++] = tile->origin;
 
-    struct Coords walk = *start_coords;
-
-    switch (direction) {
+    struct Coords walk = tile->origin;
+    switch (tile->direction) {
     case TILE_EAST:
         Coords_move(&walk, NORTHEAST);
         coords[i++] = walk;

@@ -18,9 +18,11 @@ void State_print_raw_tile_grid(struct State* state)
 int main()
 {
     puts("Nico tests...");
+    init_coords();
 
     struct State state;
     struct Action actions[MAX_ACTIONS];
+    int actionc;
 
     // Translate around and back to the same place
     {
@@ -43,7 +45,7 @@ int main()
         }
     }
 
-    // Test normalization
+    // Normalization
     {
         State_new(&state);
         State_actions(&state, actions);
@@ -68,7 +70,7 @@ int main()
         }
     }
 
-    // Test normalization when wrapping
+    // Normalization when wrapping
     {
         State_new(&state);
         State_actions(&state, actions);
@@ -88,6 +90,20 @@ int main()
                 printf("\n");
                 State_print_raw_tile_grid(&translated);
             }
+        }
+    }
+
+    {
+        State_new(&state);
+        State_actions(&state, actions);
+        State_act(&state, &actions[0]);
+
+        int actionc = State_actions(&state, actions);
+        for (int i = 0; i < actionc; i++) {
+            struct State s = state;
+            State_act(&s, &actions[i]);
+            State_print(&s, stdout);
+            getc(stdin);
         }
     }
 

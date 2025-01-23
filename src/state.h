@@ -9,6 +9,9 @@
 
 #define PLAYER_TILES 4
 
+#define MAX_TILE_HEXES (NUM_PLAYERS * PLAYER_TILES * 4)
+#define MAX_PLACE_HEXES
+
 #define INITIAL_STACK 16
 
 // An active stack is one that has 2 or more tokens
@@ -27,11 +30,13 @@ struct Action {
     uint8_t count;
 
     // In place actions:
-    //   - start is the existing space the tile is being placed against
+    //   - start is the existing hex the tile is being placed against
     //   - count is an enum TileDirection for the direction the
 };
 
 struct State {
+    // TODO Break out separate TileState that can be shared among states
+    // (since it never changes once the place phase is over)
     bool tiles[GRID_SIZE][GRID_SIZE];
     uint8_t stacks[GRID_SIZE][GRID_SIZE];
 
@@ -41,6 +46,10 @@ struct State {
     uint8_t active_stacksc[NUM_PLAYERS];
 
     enum Player turn;
+
+    // Derived
+    struct Coords tile_hexes[MAX_TILE_HEXES];
+    uint8_t tile_hexc;
 };
 
 void State_new(struct State* state);
