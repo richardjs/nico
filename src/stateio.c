@@ -96,8 +96,11 @@ void State_normalize(struct State* state)
     }
 }
 
-void State_print(const struct State* state, FILE* stream)
+void State_print(const struct State* s, FILE* stream)
 {
+    struct State state = *s;
+    State_normalize(&state);
+
     // Convert to double-height coordinate space; see
     // https://www.redblobgames.com/grids/hexagons/#coordinates-doubled
     bool tiles[GRID_SIZE][GRID_SIZE * 3];
@@ -115,8 +118,8 @@ void State_print(const struct State* state, FILE* stream)
             int x = q;
             int y = 2 * r + q;
 
-            tiles[x][y] = state->tiles[q][r];
-            stacks[x][y] = state->stacks[q][r];
+            tiles[x][y] = state.tiles[q][r];
+            stacks[x][y] = state.stacks[q][r];
 
             if (!tiles[x][y])
                 continue;
