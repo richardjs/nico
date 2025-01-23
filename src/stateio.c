@@ -37,6 +37,63 @@ void State_translate(struct State* state, enum Direction direction)
 
 void State_normalize(struct State* state)
 {
+    // A state is normalized if both the q=0 and r=0 axes have a tile on
+    // them, and q=GRID_SIZE-1, etc., doesn't (unless it must TODO)
+    // TODO or we could check for non-wrapping continuity
+
+    // Check for tiles on q=0
+    bool tile_on_axis = false;
+    for (int r = 0; r < GRID_SIZE && !tile_on_axis; r++) {
+        tile_on_axis = state->tiles[0][r];
+    }
+    if (!tile_on_axis) {
+        State_translate(state, NORTHWEST);
+        return State_normalize(state);
+    }
+
+    // Check for tiles on r=0
+    tile_on_axis = false;
+    for (int q = 0; q < GRID_SIZE && !tile_on_axis; q++) {
+        tile_on_axis = state->tiles[q][0];
+    }
+    if (!tile_on_axis) {
+        State_translate(state, NORTHEAST);
+        return State_normalize(state);
+    }
+
+    // Check for a gap between tiles
+    bool tile_gap = false;
+    for (int q = 0; q < GRID_SIZE; q++) {
+        bool empty_column = true;
+        for (int r = 0; r < GRID_SIZE; r++) {
+            if (state->tiles[q][r]) {
+                empty_column = false;
+                break;
+            }
+        }
+        if (empty_column) {
+            tile_gap = true;
+            break;
+        }
+    }
+
+    // If there's a tile gap, the tiles are not stretched across the
+    // full grid and thus shouldn't be against the far edges (in other
+    // words, check for wrapping)
+    if (tile_gap) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            if (state->tiles[GRID_SIZE - 1][r]) {
+                State_translate(state, NORTHWEST);
+                return State_normalize(state);
+            }
+        }
+        for (int q = 0; q < GRID_SIZE; q++) {
+            if (state->tiles[q][GRID_SIZE - 1]) {
+                State_translate(state, NORTHEAST);
+                return State_normalize(state);
+            }
+        }
+    }
 }
 
 void State_print(const struct State* state, FILE* stream)

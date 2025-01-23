@@ -18,6 +18,6 @@ clean:
 coords.o: state.h
 state.o: coords.h tile.h
 stateio.o: coords.h state.h
-test: state.h
+test: state.h stateio.h
 
 # vim: set noexpandtab sts=0 ts=4:
