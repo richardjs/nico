@@ -43,7 +43,7 @@ struct State {
     uint8_t remaining_tiles[NUM_PLAYERS];
 
     struct Coords active_stacks[NUM_PLAYERS][MAX_ACTIVE_STACKS];
-    uint8_t active_stacksc[NUM_PLAYERS];
+    uint8_t active_stackc[NUM_PLAYERS];
 
     enum Player turn;
 

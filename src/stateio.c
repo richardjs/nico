@@ -27,7 +27,7 @@ void State_translate(struct State* state, enum Direction direction)
     }
 
     for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state->active_stacksc[i]; i++) {
+        for (int i = 0; i < state->active_stackc[i]; i++) {
             Coords_move(&state->active_stacks[p][i], direction);
         }
     }
@@ -183,4 +183,66 @@ void State_print(const struct State* s, FILE* stream)
         }
         fputc('\n', stream);
     }
+}
+
+bool State_from_string(struct State* state, const char s[])
+{
+    State_new(state);
+    char string[STATE_STRING_SIZE];
+    strncpy(string, s, STATE_STRING_SIZE - 1);
+
+    int hexes = 0;
+    struct Coords coords;
+    char turn_char;
+
+    char* token = strtok(string, "|");
+    while (token) {
+        // Hex token
+        if (sscanf(token, "%c,%c", &coords.q, &coords.r) == 2) {
+            printf("%d %d\n", coords.q, coords.r);
+            hexes += 1;
+            state->tiles[coords.q][coords.r] = true;
+            goto next_token;
+        }
+
+        // TODO Stack token
+
+        // Turn token
+        if (sscanf(token, "%c", &turn_char) == 1) {
+            state->turn = turn_char == P1_CHAR ? P1 : P2;
+            goto next_token;
+        }
+
+    next_token:
+        token = strtok(NULL, "|");
+    }
+
+    // Update remaining tiles
+    int tiles = hexes / 4;
+    state->remaining_tiles[P1] -= tiles / 2;
+    state->remaining_tiles[P1] -= tiles % 2;
+    state->remaining_tiles[P2] -= tiles / 2;
+
+    return true;
+}
+
+void State_to_string(const struct State* s, char string[])
+{
+    struct State state = *s;
+    State_normalize(&state);
+
+    int ci = 0;
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            if (!state.tiles[q][r]) {
+                continue;
+            }
+
+            ci += snprintf(&string[ci], STATE_STRING_SIZE - ci, "%d,%d|", q, r);
+        }
+    }
+
+    // TODO encode stacks
+
+    snprintf(&string[ci], STATE_STRING_SIZE - ci, "%c", state.turn == P1 ? 'h' : 't');
 }

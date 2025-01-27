@@ -24,6 +24,8 @@ int main()
     struct Action actions[MAX_ACTIONS];
     int actionc;
 
+    char state_string[STATE_STRING_SIZE];
+
     // Translate around and back to the same place
     {
         // Place first tile
@@ -93,17 +95,35 @@ int main()
         }
     }
 
+    // Basic serialization->deserialization cases
     {
         State_new(&state);
-        State_actions(&state, actions);
-        State_act(&state, &actions[0]);
+        // TODO increase i once we have more types of actions
+        for (int i = 0; i < 10; i++) {
+            State_actions(&state, actions);
+            State_act(&state, &actions[0]);
 
-        int actionc = State_actions(&state, actions);
-        for (int i = 0; i < actionc; i++) {
-            struct State s = state;
-            State_act(&s, &actions[i]);
-            State_print(&s, stdout);
-            getc(stdin);
+            // State_to_string normalizes the state, so normalize it here so we can compare it later
+            State_normalize(&state);
+
+            State_to_string(&state, state_string);
+
+            struct State from_string_state;
+            State_from_string(&from_string_state, state_string);
+
+            if (memcmp(&state, &from_string_state, sizeof(struct State)) != 0) {
+                printf("Discrepency serializing and deserializing state\n");
+                printf("Serialized state: %s", state_string);
+                State_print(&state, stdout);
+                State_print_raw_tile_grid(&state);
+
+                // State_to_string(&from_string, state_string);
+                printf("Deserialized state: %s", state_string);
+                // State_print(&from_string_state, stdout);
+                State_print_raw_tile_grid(&from_string_state);
+                puts("Breaking out of test; more states may have issues");
+                break;
+            }
         }
     }
 

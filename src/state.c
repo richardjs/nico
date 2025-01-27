@@ -68,8 +68,14 @@ int State_place_actions(const struct State* state, struct Action actions[])
 
 int State_actions(const struct State* state, struct Action actions[])
 {
+    // Tile placement phase
     if (state->remaining_tiles[state->turn] > 0) {
         return State_place_actions(state, actions);
+    }
+
+    // Initial stack placement
+    if (state->active_stackc[state->turn] == 0) {
+        // TODO We can probably track
     }
 
     // TODO
