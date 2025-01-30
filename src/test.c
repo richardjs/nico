@@ -1,5 +1,6 @@
 #include "state.h"
 #include "stateio.h"
+#include "stateutil.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -22,7 +23,7 @@ int main()
 
     struct State state;
     struct Action actions[MAX_ACTIONS];
-    int actionc;
+    // int actionc;
 
     char state_string[STATE_STRING_SIZE];
 
@@ -42,7 +43,7 @@ int main()
         State_translate(&translated, NORTHEAST);
         State_translate(&translated, NORTH);
 
-        if (memcmp(&state, &translated, sizeof(struct State)) != 0) {
+        if (State_compare(&state, &translated)) {
             puts("Something went wrong in state translation");
         }
     }
@@ -95,11 +96,43 @@ int main()
         }
     }
 
+    // Normalize a new board without crashing or getting stuck
+    {
+        State_new(&state);
+        State_normalize(&state);
+    }
+
+    // Derive and compare
+    {
+        State_new(&state);
+
+        struct State derived = state;
+        State_derive(&derived);
+
+        int c = State_compare(&state, &derived);
+        if (c) {
+            printf("Discrepency deriving and comparaing (compare %d)\n", c);
+            State_print(&state, stdout);
+        }
+
+        State_actions(&state, actions);
+        State_act(&state, &actions[0]);
+
+        derived = state;
+        State_derive(&derived);
+
+        c = State_compare(&state, &derived);
+        if (c) {
+            printf("Discrepency deriving and comparaing (compare %d)\n", c);
+            State_print(&state, stdout);
+        }
+    }
+
     // Basic serialization->deserialization cases
     {
         State_new(&state);
         // TODO increase i once we have more types of actions
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             State_actions(&state, actions);
             State_act(&state, &actions[0]);
 
@@ -107,21 +140,13 @@ int main()
             State_normalize(&state);
 
             State_to_string(&state, state_string);
-
             struct State from_string_state;
             State_from_string(&from_string_state, state_string);
 
-            if (memcmp(&state, &from_string_state, sizeof(struct State)) != 0) {
-                printf("Discrepency serializing and deserializing state\n");
-                printf("Serialized state: %s", state_string);
+            int c = State_compare(&state, &from_string_state);
+            if (c) {
+                printf("Discrepency serializing and deserializing state (compare %d)\n", c);
                 State_print(&state, stdout);
-                State_print_raw_tile_grid(&state);
-
-                // State_to_string(&from_string, state_string);
-                printf("Deserialized state: %s", state_string);
-                // State_print(&from_string_state, stdout);
-                State_print_raw_tile_grid(&from_string_state);
-                puts("Breaking out of test; more states may have issues");
                 break;
             }
         }

@@ -37,6 +37,8 @@ struct Action {
 struct State {
     // TODO Break out separate TileState that can be shared among states
     // (since it never changes once the place phase is over)
+
+    // Core information
     bool tiles[GRID_SIZE][GRID_SIZE];
     uint8_t stacks[GRID_SIZE][GRID_SIZE];
 
@@ -47,7 +49,7 @@ struct State {
 
     enum Player turn;
 
-    // Derived
+    // Derived information
     struct Coords tile_hexes[MAX_TILE_HEXES];
     uint8_t tile_hexc;
 };

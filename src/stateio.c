@@ -1,6 +1,7 @@
 #include "stateio.h"
 #include "coords.h"
 #include "state.h"
+#include "stateutil.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -31,6 +32,9 @@ void State_translate(struct State* state, enum Direction direction)
             Coords_move(&state->active_stacks[p][i], direction);
         }
     }
+
+    // Derived information may need to be updated after the translate
+    State_derive(state);
 }
 
 void State_normalize(struct State* state)
@@ -38,6 +42,11 @@ void State_normalize(struct State* state)
     // A state is normalized if both the q=0 and r=0 axes have a tile on
     // them, and q=GRID_SIZE-1, etc., doesn't (unless it must TODO)
     // TODO or we could check for non-wrapping continuity
+
+    // The initial state is normalized implicitly
+    if (state->remaining_tiles[P1] == 4) {
+        return;
+    }
 
     // Check for tiles on q=0
     bool tile_on_axis = false;
@@ -198,8 +207,7 @@ bool State_from_string(struct State* state, const char s[])
     char* token = strtok(string, "|");
     while (token) {
         // Hex token
-        if (sscanf(token, "%c,%c", &coords.q, &coords.r) == 2) {
-            printf("%d %d\n", coords.q, coords.r);
+        if (sscanf(token, "%hhd,%hhd", &coords.q, &coords.r) == 2) {
             hexes += 1;
             state->tiles[coords.q][coords.r] = true;
             goto next_token;
@@ -222,6 +230,8 @@ bool State_from_string(struct State* state, const char s[])
     state->remaining_tiles[P1] -= tiles / 2;
     state->remaining_tiles[P1] -= tiles % 2;
     state->remaining_tiles[P2] -= tiles / 2;
+
+    State_derive(state);
 
     return true;
 }

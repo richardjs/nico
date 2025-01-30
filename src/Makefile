@@ -1,7 +1,7 @@
 CFLAGS=-std=gnu17 -Wall -O3
 LDFLAGS=-lm
 
-objects=coords.o state.o stateio.o tile.o
+objects=coords.o state.o stateio.o stateutil.o tile.o
 
 test: $(objects)
 
@@ -17,7 +17,8 @@ clean:
 
 coords.o: coords.h state.h
 state.o: coords.h state.h tile.h
-stateio.o: coords.h state.h stateio.h
-test: state.h stateio.h tile.h
+stateio.o: coords.h state.h stateio.h stateutil.h
+stateutil.o: state.h stateutil.h
+test: state.h stateio.h stateutil.h tile.h
 
 # vim: set noexpandtab sts=0 ts=4:
