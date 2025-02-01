@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void State_new_stack_tile(struct State* state, const struct Coords* coords, uint8_t count);
+
 void State_translate(struct State* state, enum Direction direction)
 {
     bool tiles[GRID_SIZE][GRID_SIZE];
@@ -28,8 +30,8 @@ void State_translate(struct State* state, enum Direction direction)
     }
 
     for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state->active_stackc[i]; i++) {
-            Coords_move(&state->active_stacks[p][i], direction);
+        for (int i = 0; i < state->player_stackc[i]; i++) {
+            Coords_move(&state->player_stacks[p][i], direction);
         }
     }
 
@@ -111,9 +113,11 @@ void State_print(const struct State* s, FILE* stream)
     // Convert to double-height coordinate space; see
     // https://www.redblobgames.com/grids/hexagons/#coordinates-doubled
     bool tiles[GRID_SIZE][GRID_SIZE * 3];
-    uint8_t stacks[GRID_SIZE][GRID_SIZE * 3];
+    int stacks[GRID_SIZE][GRID_SIZE * 3];
     memset(tiles, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE * 3);
     memset(stacks, 0, sizeof(uint8_t) * GRID_SIZE * GRID_SIZE * 3);
+
+    enum Player stack_players[GRID_SIZE][GRID_SIZE * 3];
 
     int min_x = GRID_SIZE;
     int max_x = 0;
@@ -128,6 +132,9 @@ void State_print(const struct State* s, FILE* stream)
             tiles[x][y] = state.tiles[q][r];
             stacks[x][y] = state.stacks[q][r];
 
+            struct Coords c = { .q = q, .r = r };
+            stack_players[x][y] = State_stack_player(&state, &c);
+
             if (!tiles[x][y])
                 continue;
             if (x < min_x)
@@ -141,7 +148,7 @@ void State_print(const struct State* s, FILE* stream)
         }
     }
 
-    // If an odd column is the highest, add an undraw row above it (that
+    // If an odd column is the highest, add an undrawn row above it (that
     // would have an even row as the highest). This is because the
     // following code assumes hexes in odd columns will always have a
     // hex to the northwest.
@@ -167,9 +174,19 @@ void State_print(const struct State* s, FILE* stream)
             bool se = x < max_x && y < max_y && tiles[x + 1][y + 1];
 
             fputc(here || nw ? '/' : ' ', stream);
-            // TODO print stacks here, instead of placeholder x
-            fputc(here ? 'x' : ' ', stream);
-            fputc(here ? 'x' : ' ', stream);
+
+            if (stacks[x][y]) {
+                fputc(stack_players[x][y] == P1 ? P1_CHAR : P2_CHAR, stream);
+                if (stacks[x][y] == 16) {
+                    fputc('g', stream);
+                } else {
+                    fprintf(stream, "%x", stacks[x][y]);
+                }
+            } else {
+                fputc(' ', stream);
+                fputc(' ', stream);
+            }
+
             fputc(here || ne ? '\\' : ' ', stream);
             fputc(ne || se ? '_' : ' ', stream);
             fputc(ne || se ? '_' : ' ', stream);
@@ -186,9 +203,18 @@ void State_print(const struct State* s, FILE* stream)
             fputc(here || s ? '_' : ' ', stream);
             fputc(here || s ? '_' : ' ', stream);
             fputc(here || se ? '/' : ' ', stream);
-            // TODO print stacks here, instead of placeholder x
-            fputc(se ? 'x' : ' ', stream);
-            fputc(se ? 'x' : ' ', stream);
+
+            if (stacks[x + 1][y + 1]) {
+                fputc(stack_players[x + 1][y + 1] == P1 ? P1_CHAR : P2_CHAR, stream);
+                if (stacks[x + 1][y + 1] == 16) {
+                    fputc('g', stream);
+                } else {
+                    fprintf(stream, "%x", stacks[x + 1][y + 1]);
+                }
+            } else {
+                fputc(' ', stream);
+                fputc(' ', stream);
+            }
         }
         fputc('\n', stream);
     }
@@ -201,25 +227,41 @@ bool State_from_string(struct State* state, const char s[])
     strncpy(string, s, STATE_STRING_SIZE - 1);
 
     int hexes = 0;
-    struct Coords coords;
-    char turn_char;
+    int q;
+    int r;
+    char player_char;
+    int count;
 
     char* token = strtok(string, "|");
     while (token) {
-        // Hex token
-        if (sscanf(token, "%hhd,%hhd", &coords.q, &coords.r) == 2) {
-            hexes += 1;
-            state->tiles[coords.q][coords.r] = true;
+        // Stack token
+        if (sscanf(token, "%d,%d%c%d", &q, &r, &player_char, &count) == 4) {
+            // We shouldn't need to save this; by the spec, turns will come last (but just in case)
+            enum Player tmp = state->turn;
+            // State_new_stack_tile uses the state turn
+            state->turn = player_char == P1_CHAR ? P1 : P2;
+
+            struct Coords coords = { .q = q, .r = r };
+            State_new_stack_tile(state, &coords, count);
+
+            state->turn = tmp;
             goto next_token;
         }
 
-        // TODO Stack token
+        // Hex token
+        if (sscanf(token, "%d,%d", &q, &r) == 2) {
+            hexes += 1;
+            state->tiles[q][r] = true;
+            goto next_token;
+        }
 
         // Turn token
-        if (sscanf(token, "%c", &turn_char) == 1) {
-            state->turn = turn_char == P1_CHAR ? P1 : P2;
+        if (sscanf(token, "%c", &player_char) == 1) {
+            state->turn = player_char == P1_CHAR ? P1 : P2;
             goto next_token;
         }
+
+        printf("bad token: %s\n", token);
 
     next_token:
         token = strtok(NULL, "|");
@@ -252,7 +294,18 @@ void State_to_string(const struct State* s, char string[])
         }
     }
 
-    // TODO encode stacks
+    for (enum Player p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state.player_stackc[p]; i++) {
+            int q = state.player_stacks[p][i].q;
+            int r = state.player_stacks[p][i].r;
+
+            ci += snprintf(&string[ci], STATE_STRING_SIZE - ci,
+                "%d,%d%c%d|",
+                q, r,
+                p == P1 ? P1_CHAR : P2_CHAR,
+                state.stacks[q][r]);
+        }
+    }
 
     snprintf(&string[ci], STATE_STRING_SIZE - ci, "%c", state.turn == P1 ? 'h' : 't');
 }

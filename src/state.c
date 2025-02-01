@@ -73,11 +73,21 @@ int State_actions(const struct State* state, struct Action actions[])
         return State_place_actions(state, actions);
     }
 
+    int c = 0;
+
     // Initial stack placement
-    if (state->active_stackc[state->turn] == 0) {
-        // TODO We can probably track
+    if (state->player_stackc[state->turn] == 0) {
+        for (int i = 0; i < state->tile_hexc; i++) {
+            const struct Coords* hex = &state->tile_hexes[i];
+            if (state->stacks[hex->q][hex->r]) {
+                continue;
+            }
+            actions[c].start = *hex;
+            actions[c++].count = INITIAL_STACK;
+        }
     }
 
+    // Stack moves
     // TODO
     return 0;
 }
@@ -97,12 +107,26 @@ void State_place_act(struct State* state, const struct Action* action)
     }
 
     state->remaining_tiles[state->turn]--;
-    state->turn = !state->turn;
+}
+
+void State_new_stack_tile(struct State* state, const struct Coords* coords, uint8_t count)
+{
+    state->stacks[coords->q][coords->r] = count;
+    state->player_stacks[state->turn][state->player_stackc[state->turn]++] = *coords;
 }
 
 void State_act(struct State* state, const struct Action* action)
 {
     if (state->remaining_tiles[state->turn] > 0) {
-        return State_place_act(state, action);
+        State_place_act(state, action);
+        goto next_turn;
     }
+
+    if (action->count == INITIAL_STACK) {
+        State_new_stack_tile(state, &action->start, INITIAL_STACK);
+        goto next_turn;
+    }
+
+next_turn:
+    state->turn = !state->turn;
 }

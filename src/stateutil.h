@@ -8,4 +8,6 @@ void State_derive(struct State* state);
 // Returns >0 if states are not the same
 unsigned int State_compare(const struct State* s1, const struct State* s2);
 
+enum Player State_stack_player(const struct State* state, const struct Coords* coord);
+
 #endif

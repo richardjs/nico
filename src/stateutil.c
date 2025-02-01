@@ -39,16 +39,16 @@ unsigned int State_compare(const struct State* s1, const struct State* s2)
         if (s1->remaining_tiles[p] != s2->remaining_tiles[p]) {
             return 4;
         }
-        // .active_stackc
-        if (s1->active_stackc[p] != s2->active_stackc[p]) {
+        // .player_stackc
+        if (s1->player_stackc[p] != s2->player_stackc[p]) {
             return 5;
         }
-        // .active_stacks
-        for (int i = 0; i < s1->active_stackc[p]; i++) {
-            if (s1->active_stacks[p][i].q != s2->active_stacks[p][i].q) {
+        // .player_stacks
+        for (int i = 0; i < s1->player_stackc[p]; i++) {
+            if (s1->player_stacks[p][i].q != s2->player_stacks[p][i].q) {
                 return 6;
             }
-            if (s1->active_stacks[p][i].r != s2->active_stacks[p][i].r) {
+            if (s1->player_stacks[p][i].r != s2->player_stacks[p][i].r) {
                 return 7;
             }
         }
@@ -71,4 +71,19 @@ unsigned int State_compare(const struct State* s1, const struct State* s2)
     }
 
     return 0;
+}
+
+enum Player State_stack_player(const struct State* state, const struct Coords* coords)
+{
+    for (enum Player p = 0; p < NUM_PLAYERS; p++) {
+        for (int i = 0; i < state->player_stackc[p]; i++) {
+            const struct Coords* hex = &state->player_stacks[p][i];
+            if (hex->q == coords->q && hex->r == coords->r) {
+                return p;
+            }
+        }
+    }
+
+    // Error case
+    return -1;
 }

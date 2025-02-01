@@ -14,9 +14,6 @@
 
 #define INITIAL_STACK 16
 
-// An active stack is one that has 2 or more tokens
-#define MAX_ACTIVE_STACKS 8
-
 #define MAX_ACTIONS 630
 
 enum Player {
@@ -29,9 +26,13 @@ struct Action {
     struct Coords end;
     uint8_t count;
 
-    // In place actions:
+    // In tile place actions:
     //   - start is the existing hex the tile is being placed against
     //   - count is an enum TileDirection for the direction the
+
+    // In initial stack place actions:
+    //   - start is the hex the stack is placed on
+    //   - count is INITIAL_STACK (16)
 };
 
 struct State {
@@ -44,8 +45,8 @@ struct State {
 
     uint8_t remaining_tiles[NUM_PLAYERS];
 
-    struct Coords active_stacks[NUM_PLAYERS][MAX_ACTIVE_STACKS];
-    uint8_t active_stackc[NUM_PLAYERS];
+    struct Coords player_stacks[NUM_PLAYERS][INITIAL_STACK];
+    uint8_t player_stackc[NUM_PLAYERS];
 
     enum Player turn;
 

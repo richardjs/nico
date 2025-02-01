@@ -132,7 +132,7 @@ int main()
     {
         State_new(&state);
         // TODO increase i once we have more types of actions
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 10; i++) {
             State_actions(&state, actions);
             State_act(&state, &actions[0]);
 
@@ -147,6 +147,10 @@ int main()
             if (c) {
                 printf("Discrepency serializing and deserializing state (compare %d)\n", c);
                 State_print(&state, stdout);
+                State_print(&from_string_state, stdout);
+                printf("State string 1: %s\n", state_string);
+                State_to_string(&from_string_state, state_string);
+                printf("State string 2: %s\n", state_string);
                 break;
             }
         }
