@@ -2,6 +2,7 @@
 #include "coords.h"
 #include "state.h"
 #include "stateutil.h"
+#include "tile.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -308,4 +309,37 @@ void State_to_string(const struct State* s, char string[])
     }
 
     snprintf(&string[ci], STATE_STRING_SIZE - ci, "%c", state.turn == P1 ? 'h' : 't');
+}
+
+void Action_to_string(const struct Action* action, char string[])
+{
+    // Tile placement
+    if (action->count == 0) {
+        snprintf(string, ACTION_STRING_SIZE,
+            "%d,%d%s",
+            action->start.q,
+            action->start.r,
+            TILE_DIRECTION_CODES[action->end.q]);
+    }
+    // Initial stack placement
+    else if (action->count == INITIAL_STACK) {
+        snprintf(string, ACTION_STRING_SIZE,
+            "%d,%d",
+            action->start.q,
+            action->start.r);
+    }
+    // Stack movement
+    else {
+        snprintf(string, ACTION_STRING_SIZE,
+            "%d,%d|%d|%d,%d",
+            action->start.q,
+            action->start.r);
+    }
+}
+
+void Action_print(const struct Action* action, FILE* stream)
+{
+    char action_string[ACTION_STRING_SIZE];
+    Action_to_string(action, action_string);
+    fprintf(stream, "%s\n", action_string);
 }

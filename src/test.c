@@ -23,7 +23,7 @@ int main()
 
     struct State state;
     struct Action actions[MAX_ACTIONS];
-    // int actionc;
+    int actionc;
 
     char state_string[STATE_STRING_SIZE];
 
@@ -128,30 +128,33 @@ int main()
         }
     }
 
-    // Basic serialization->deserialization cases
+    // Check branching factor for initial places
     {
         State_new(&state);
-        // TODO increase i once we have more types of actions
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 8; i++) {
             State_actions(&state, actions);
             State_act(&state, &actions[0]);
+        }
 
-            // State_to_string normalizes the state, so normalize it here so we can compare it later
-            State_normalize(&state);
+        State_normalize(&state);
 
-            State_to_string(&state, state_string);
-            struct State from_string_state;
-            State_from_string(&from_string_state, state_string);
+        actionc = State_actions(&state, actions);
+        if (actionc != 32) {
+            State_print(&state, stdout);
+            printf("Initial place action count %d != 32\n", actionc);
+            for (int i = 0; i < actionc; i++) {
+                Action_print(&actions[i], stdout);
+            }
+        }
 
-            int c = State_compare(&state, &from_string_state);
-            if (c) {
-                printf("Discrepency serializing and deserializing state (compare %d)\n", c);
-                State_print(&state, stdout);
-                State_print(&from_string_state, stdout);
-                printf("State string 1: %s\n", state_string);
-                State_to_string(&from_string_state, state_string);
-                printf("State string 2: %s\n", state_string);
-                break;
+        State_act(&state, &actions[0]);
+        actionc = State_actions(&state, actions);
+
+        if (actionc != 31) {
+            State_print(&state, stdout);
+            printf("Second initial place action count %d != 31\n", actionc);
+            for (int i = 0; i < actionc; i++) {
+                Action_print(&actions[i], stdout);
             }
         }
     }

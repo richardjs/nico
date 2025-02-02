@@ -30,6 +30,8 @@ enum TileDirection {
     TILE_NORTHEAST
 };
 
+extern const char* TILE_DIRECTION_CODES[NUM_DIRECTIONS];
+
 struct Tile {
     struct Coords origin;
     enum TileDirection direction;

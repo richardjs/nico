@@ -1,5 +1,9 @@
 #include "tile.h"
 
+const char* TILE_DIRECTION_CODES[] = {
+    "nn", "ne", "se", "ss", "sw", "nw"
+};
+
 void Tile_coords(const struct Tile* tile, struct Coords coords[])
 {
     int i = 0;

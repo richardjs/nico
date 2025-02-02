@@ -27,8 +27,9 @@ struct Action {
     uint8_t count;
 
     // In tile place actions:
-    //   - start is the existing hex the tile is being placed against
-    //   - count is an enum TileDirection for the direction the
+    //   - start is the origin point of the tile
+    //   - end.q is an enum TileDirection for the direction the
+    //   - count is 0
 
     // In initial stack place actions:
     //   - start is the hex the stack is placed on

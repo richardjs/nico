@@ -19,15 +19,18 @@ int State_place_actions(const struct State* state, struct Action actions[])
     if (state->remaining_tiles[P1] == PLAYER_TILES) {
         actions[c].start.q = 0;
         actions[c].start.r = 0;
-        actions[c++].count = TILE_SOUTHEAST;
+        actions[c].end.q = TILE_SOUTHEAST;
+        actions[c++].count = 0;
 
         actions[c].start.q = 0;
         actions[c].start.r = 1;
-        actions[c++].count = TILE_EAST;
+        actions[c].end.q = TILE_EAST;
+        actions[c++].count = 0;
 
         actions[c].start.q = 0;
         actions[c].start.r = 2;
-        actions[c++].count = TILE_NORTHEAST;
+        actions[c].end.q = TILE_NORTHEAST;
+        actions[c++].count = 0;
         return c;
     }
 
@@ -56,7 +59,8 @@ int State_place_actions(const struct State* state, struct Action actions[])
                     // TODO Check for existing duplicate places?
                     if (tile_clear) {
                         actions[c].start = tile.origin;
-                        actions[c++].count = tile.direction;
+                        actions[c].end.q = tile.direction;
+                        actions[c++].count = 0;
                     }
                 }
             }
@@ -85,10 +89,21 @@ int State_actions(const struct State* state, struct Action actions[])
             actions[c].start = *hex;
             actions[c++].count = INITIAL_STACK;
         }
+        return c;
     }
 
     // Stack moves
-    // TODO
+    for (int i = 0; i < state->player_stackc[state->turn]; i++) {
+        const struct Coords* start = &state->player_stacks[state->turn][i];
+
+        if (state->stacks[start->q][start->r] == 1) {
+            continue;
+        }
+
+        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+            actions[c].start = *start;
+        }
+    }
     return 0;
 }
 
@@ -97,7 +112,7 @@ void State_place_act(struct State* state, const struct Action* action)
     struct Coords place_coords[TILE_SIZE];
     struct Tile tile = {
         .origin = action->start,
-        .direction = action->count,
+        .direction = action->end.q,
     };
     Tile_coords(&tile, place_coords);
 
