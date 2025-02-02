@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void State_new_stack_tile(struct State* state, const struct Coords* coords, uint8_t count);
+void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8_t count);
 
 void State_translate(struct State* state, enum Direction direction)
 {
@@ -219,6 +219,8 @@ void State_print(const struct State* s, FILE* stream)
         }
         fputc('\n', stream);
     }
+
+    fprintf(stream, "Turn: %c\n", state.turn == P1 ? P1_CHAR : P2_CHAR);
 }
 
 bool State_from_string(struct State* state, const char s[])
@@ -239,11 +241,11 @@ bool State_from_string(struct State* state, const char s[])
         if (sscanf(token, "%d,%d%c%d", &q, &r, &player_char, &count) == 4) {
             // We shouldn't need to save this; by the spec, turns will come last (but just in case)
             enum Player tmp = state->turn;
-            // State_new_stack_tile uses the state turn
+            // State_new_stack_hex uses the state turn
             state->turn = player_char == P1_CHAR ? P1 : P2;
 
             struct Coords coords = { .q = q, .r = r };
-            State_new_stack_tile(state, &coords, count);
+            State_new_stack_hex(state, &coords, count);
 
             state->turn = tmp;
             goto next_token;
@@ -331,9 +333,12 @@ void Action_to_string(const struct Action* action, char string[])
     // Stack movement
     else {
         snprintf(string, ACTION_STRING_SIZE,
-            "%d,%d|%d|%d,%d",
+            "%hhd,%hhd|%hhd|%hhd,%hhd",
             action->start.q,
-            action->start.r);
+            action->start.r,
+            action->count,
+            action->end.q,
+            action->end.r);
     }
 }
 

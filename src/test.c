@@ -113,6 +113,9 @@ int main()
         if (c) {
             printf("Discrepency deriving and comparaing (compare %d)\n", c);
             State_print(&state, stdout);
+
+            State_to_string(&state, state_string);
+            printf("State string %s\n", state_string);
         }
 
         State_actions(&state, actions);
@@ -125,10 +128,13 @@ int main()
         if (c) {
             printf("Discrepency deriving and comparaing (compare %d)\n", c);
             State_print(&state, stdout);
+
+            State_to_string(&state, state_string);
+            printf("State string %s\n", state_string);
         }
     }
 
-    // Check branching factor for initial places
+    // Check some basic branching factors
     {
         State_new(&state);
         for (int i = 0; i < 8; i++) {
@@ -157,6 +163,20 @@ int main()
                 Action_print(&actions[i], stdout);
             }
         }
+
+        State_act(&state, &actions[0]);
+
+        actionc = State_actions(&state, actions);
+        if (actionc != 30) {
+            printf("Branching factor here %d != 30\n", actionc);
+            State_print(&state, stdout);
+            for (int i = 0; i < actionc; i++) {
+                Action_print(&actions[i], stdout);
+            }
+        }
+
+        State_act(&state, &actions[3]);
+        State_print(&state, stdout);
     }
 
     puts("Done!");

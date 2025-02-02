@@ -101,10 +101,29 @@ int State_actions(const struct State* state, struct Action actions[])
         }
 
         for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
-            actions[c].start = *start;
+            // TODO may be able to optimize here
+            struct Coords end = *start;
+            struct Coords walk = *start;
+
+            Coords_move(&walk, d);
+            while (state->tiles[walk.q][walk.r] && state->stacks[walk.q][walk.r] == 0) {
+                end = walk;
+                Coords_move(&walk, d);
+            }
+
+            if (start->q == end.q && start->r == end.r) {
+                continue;
+            }
+
+            for (int n = 1; n < state->stacks[start->q][start->r]; n++) {
+                actions[c].start = *start;
+                actions[c].end = end;
+                actions[c++].count = n;
+            }
         }
     }
-    return 0;
+
+    return c;
 }
 
 void State_place_act(struct State* state, const struct Action* action)
@@ -124,7 +143,7 @@ void State_place_act(struct State* state, const struct Action* action)
     state->remaining_tiles[state->turn]--;
 }
 
-void State_new_stack_tile(struct State* state, const struct Coords* coords, uint8_t count)
+void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8_t count)
 {
     state->stacks[coords->q][coords->r] = count;
     state->player_stacks[state->turn][state->player_stackc[state->turn]++] = *coords;
@@ -132,15 +151,21 @@ void State_new_stack_tile(struct State* state, const struct Coords* coords, uint
 
 void State_act(struct State* state, const struct Action* action)
 {
+    // Tile place
     if (state->remaining_tiles[state->turn] > 0) {
         State_place_act(state, action);
         goto next_turn;
     }
 
+    // Initial stack place
     if (action->count == INITIAL_STACK) {
-        State_new_stack_tile(state, &action->start, INITIAL_STACK);
+        State_new_stack_hex(state, &action->start, INITIAL_STACK);
         goto next_turn;
     }
+
+    // Stack move
+    State_new_stack_hex(state, &action->end, action->count);
+    state->stacks[action->start.q][action->start.r] -= action->count;
 
 next_turn:
     state->turn = !state->turn;
