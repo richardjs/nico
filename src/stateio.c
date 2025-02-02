@@ -160,6 +160,7 @@ void State_print(const struct State* s, FILE* stream)
     for (int x = min_x; x <= max_x + 1; x += 2) {
         bool here = tiles[x][min_y];
         fputc(' ', stream);
+        fputc(' ', stream);
         fputc(here ? '_' : ' ', stream);
         fputc(here ? '_' : ' ', stream);
         fputc(' ', stream);
