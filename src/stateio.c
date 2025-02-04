@@ -355,7 +355,6 @@ void Action_from_string(struct Action* action, const char string[])
             case 'w':
                 action->end.q = TILE_NORTHWEST;
                 break;
-                break;
             }
             break;
         };

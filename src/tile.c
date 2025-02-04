@@ -1,7 +1,7 @@
 #include "tile.h"
 
 const char* TILE_DIRECTION_CODES[] = {
-    "nn", "ne", "se", "ss", "sw", "nw"
+    "ee", "se", "sw", "ww", "nw", "ne"
 };
 
 void Tile_coords(const struct Tile* tile, struct Coords coords[])
@@ -54,7 +54,7 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
     case TILE_NORTHEAST:
         Coords_move(&walk, NORTH);
         coords[i++] = walk;
-        Coords_move(&walk, SOUTHWEST);
+        Coords_move(&walk, SOUTHEAST);
         coords[i++] = walk;
         Coords_move(&walk, NORTH);
         coords[i++] = walk;
