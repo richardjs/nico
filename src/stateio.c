@@ -1,5 +1,6 @@
 #include "stateio.h"
 #include "coords.h"
+#include "errorcodes.h"
 #include "state.h"
 #include "stateutil.h"
 #include "tile.h"
@@ -265,7 +266,7 @@ bool State_from_string(struct State* state, const char s[])
             goto next_token;
         }
 
-        printf("bad token: %s\n", token);
+        exit(ERROR_INVALID_STATE);
 
     next_token:
         token = strtok(NULL, "|");
@@ -312,6 +313,75 @@ void State_to_string(const struct State* s, char string[])
     }
 
     snprintf(&string[ci], STATE_STRING_SIZE - ci, "%c", state.turn == P1 ? 'h' : 't');
+}
+
+void Action_from_string(struct Action* action, const char string[])
+{
+    int q;
+    int r;
+    char d1;
+    char d2;
+    int count;
+    int dest_q;
+    int dest_r;
+
+    // Tile place
+    if (sscanf(string, "%d,%d%c%c", &q, &r, &d1, &d2) == 4) {
+        action->start.q = q;
+        action->start.r = r;
+
+        switch (d1) {
+        case 'e':
+            action->end.q = TILE_EAST;
+            break;
+        case 's':
+            switch (d2) {
+            case 'e':
+                action->end.q = TILE_SOUTHEAST;
+                break;
+            case 'w':
+                action->end.q = TILE_SOUTHWEST;
+                break;
+            }
+            break;
+        case 'w':
+            action->end.q = TILE_WEST;
+            break;
+        case 'n':
+            switch (d2) {
+            case 'e':
+                action->end.q = TILE_NORTHEAST;
+                break;
+            case 'w':
+                action->end.q = TILE_NORTHWEST;
+                break;
+                break;
+            }
+            break;
+        };
+
+        action->count = 0;
+    }
+
+    // Initial stack place
+    else if (sscanf(string, "%d,%d", &q, &r) == 2) {
+        action->start.q = q;
+        action->start.r = r;
+        action->count = INITIAL_STACK;
+    }
+
+    // Stack movement
+    else if (sscanf(string, "%d,%d|%d|%d,%d", &q, &r, &count, &dest_q, &dest_r)) {
+        action->start.q = q;
+        action->start.r = r;
+        action->count = count;
+        action->end.q = dest_q;
+        action->end.r = dest_r;
+    }
+
+    else {
+        exit(ERROR_INVALID_ACTION);
+    }
 }
 
 void Action_to_string(const struct Action* action, char string[])

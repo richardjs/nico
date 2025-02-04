@@ -73,6 +73,15 @@ unsigned int State_compare(const struct State* s1, const struct State* s2)
     return 0;
 }
 
+bool Action_compare(const struct Action* a1, const struct Action* a2)
+{
+    return a1->start.q != a2->start.q
+        || a1->start.r != a2->start.r
+        || a1->count != a2->count
+        || a1->end.q != a2->end.q
+        || a1->end.r != a2->end.r;
+}
+
 enum Player State_stack_player(const struct State* state, const struct Coords* coords)
 {
     for (enum Player p = 0; p < NUM_PLAYERS; p++) {

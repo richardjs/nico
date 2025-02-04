@@ -3,6 +3,8 @@ LDFLAGS=-lm
 
 objects=coords.o state.o stateio.o stateutil.o tile.o
 
+nico: $(objects)
+
 test: $(objects)
 
 run-test: test
@@ -14,6 +16,7 @@ format:
 clean:
 	rm -f $(objects)
 	rm -f test
+	rm -f nico
 
 coords.o: coords.h state.h
 state.o: coords.h state.h tile.h
