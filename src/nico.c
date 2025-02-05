@@ -26,15 +26,23 @@ int main(int argc, char* argv[])
 
     init_coords();
 
+    struct State state;
+
     enum Command command = NONE;
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vnltsrxa:i:c:w:j:k:z:b:d:p:u:o:e:")) != -1) {
+    while ((opt = getopt(argc, argv, "vInltsrxa:i:c:w:j:k:z:b:d:p:u:o:e:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
-            break;
+
+        case 'I':
+            State_new(&state);
+            char state_string[STATE_STRING_SIZE];
+            State_to_string(&state, state_string);
+            printf("%s\n", state_string);
+            return 0;
 
         case 'n':
             command = NORMALIZE;
@@ -59,7 +67,6 @@ int main(int argc, char* argv[])
             return ERROR_NO_STATE_GIVEN;
         }
 
-        struct State state;
         State_from_string(&state, argv[optind]);
 
         fprintf(stderr, "input: %s\n", argv[optind]);
