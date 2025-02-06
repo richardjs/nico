@@ -96,3 +96,16 @@ enum Player State_stack_player(const struct State* state, const struct Coords* c
     // Error case
     return -1;
 }
+
+bool State_terminal(const struct State* s)
+{
+    struct Action actions[MAX_ACTIONS];
+    if (State_actions(s, actions) != 0) {
+        return false;
+    }
+
+    struct State state = *s;
+    State_act(&state, NULL);
+
+    return State_actions(&state, actions) == 0;
+}

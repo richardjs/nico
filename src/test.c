@@ -192,6 +192,25 @@ int main()
         }
     }
 
+    // Terminal state
+    {
+        char test_state_string[] = "0,11|1,10|1,11|2,10|3,9|3,10|4,8|4,9|5,1|5,6|5,7|6,0|6,1|6,2|6,6|6,7|6,8|6,9|7,0|7,1|7,2|7,4|7,5|7,8|7,9|8,1|8,2|8,3|8,4|9,1|9,2|10,1|10,1h2|5,1h6|9,1h1|8,2h1|7,4h1|9,2h1|8,4h1|8,3h1|7,0t2|6,0t5|6,1t1|7,2t2|8,1t3|7,1t1|6,2t2|t";
+        State_from_string(&state, test_state_string);
+
+        if (!State_terminal(&state)) {
+            puts("Didn't detect terminal state");
+        }
+    }
+    {
+        // This is a different state from above, and it should *not* be terminal
+        char test_state_string[] = "0,11|1,10|1,11|2,10|3,9|3,10|4,8|4,9|5,1|5,6|5,7|6,0|6,1|6,2|6,6|6,7|6,8|6,9|7,0|7,1|7,2|7,4|7,5|7,8|7,9|8,1|8,2|8,3|8,4|9,1|9,2|10,1|10,1h2|5,1h6|9,1h1|8,2h1|7,4h1|9,2h1|8,4h3|8,3h1|7,0t2|6,0t5|6,1t1|7,2t2|8,1t3|7,1t1|6,2t2|t";
+        State_from_string(&state, test_state_string);
+
+        if (State_terminal(&state)) {
+            puts("Wrongly detected terminal state");
+        }
+    }
+
     puts("Done!");
 
     return 0;

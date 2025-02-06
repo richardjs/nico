@@ -13,4 +13,6 @@ bool State_valid_action(const struct State* state, const struct Action* action);
 
 enum Player State_stack_player(const struct State* state, const struct Coords* coord);
 
+bool State_terminal(const struct State* state);
+
 #endif

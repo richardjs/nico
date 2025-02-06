@@ -143,6 +143,8 @@ void State_place_act(struct State* state, const struct Action* action)
     state->remaining_tiles[state->turn]--;
 }
 
+// Helper function to reate a new stack of a given size at a given hex,
+// while also remembering to update player_stacks
 void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8_t count)
 {
     state->stacks[coords->q][coords->r] = count;
@@ -151,6 +153,11 @@ void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8
 
 void State_act(struct State* state, const struct Action* action)
 {
+    // Skip the turn, e.g. when player has no actions
+    if (action == NULL) {
+        goto next_turn;
+    }
+
     // Tile place
     if (state->remaining_tiles[state->turn] > 0) {
         State_place_act(state, action);

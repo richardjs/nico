@@ -6,14 +6,16 @@
 #include "errorcodes.h"
 #include "state.h"
 #include "stateio.h"
+#include "stateutil.h"
 
 #define VERSION "v.1a"
 
 enum Command {
     NONE,
-    RANDOM,
+    PRINT,
     NORMALIZE,
     LIST_ACTIONS,
+    RANDOM,
     ACT
 };
 
@@ -32,7 +34,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vInltsrxa:i:c:w:j:k:z:b:d:p:u:o:e:")) != -1) {
+    while ((opt = getopt(argc, argv, "vIPnltsrxa:i:c:w:j:k:z:b:d:p:u:o:e:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -43,6 +45,10 @@ int main(int argc, char* argv[])
             State_to_string(&state, state_string);
             printf("%s\n", state_string);
             return 0;
+
+        case 'P':
+            command = PRINT;
+            break;
 
         case 'n':
             command = NORMALIZE;
@@ -83,6 +89,10 @@ int main(int argc, char* argv[])
             fprintf(stderr, "No command given\n");
             return ERROR_NO_COMMAND_GIVEN;
 
+        case PRINT:
+            State_print(&state, stdout);
+            return 0;
+
         case NORMALIZE:
             State_normalize(&state);
             State_to_string(&state, state_string);
@@ -90,13 +100,30 @@ int main(int argc, char* argv[])
             return 0;
 
         case LIST_ACTIONS:
+            if (actionc == 0) {
+                if (State_terminal(&state)) {
+                    puts("terminal state");
+                } else {
+                    puts("no actions");
+                }
+                return 0;
+            }
+
             for (int i = 0; i < actionc; i++) {
                 Action_print(&actions[i], stdout);
             }
+
             return 0;
 
         case ACT:
             State_act(&state, &action);
+
+            // Check if we need to skip turns
+            if (State_actions(&state, actions) == 0) {
+                fprintf(stderr, "Skipping turn for %c\n", state.turn == P1 ? P1_CHAR : P2_CHAR);
+                State_act(&state, NULL);
+            }
+
             State_normalize(&state);
             State_to_string(&state, state_string);
             State_print(&state, stderr);
