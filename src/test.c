@@ -22,6 +22,7 @@ int main()
     init_coords();
 
     struct State state;
+    struct Action action;
     struct Action actions[MAX_ACTIONS];
     int actionc;
 
@@ -174,9 +175,21 @@ int main()
                 Action_print(&actions[i], stdout);
             }
         }
+    }
 
-        State_act(&state, &actions[3]);
-        State_print(&state, stdout);
+    // Stack move bug
+    {
+        char test_state_string[] = "0,3|0,4|0,5|1,2|1,3|1,4|1,5|2,2|2,3|2,4|3,0|3,1|3,2|3,3|4,0|4,1|4,2|4,3|5,2|5,3|5,5|5,6|6,2|6,3|6,4|6,5|7,1|7,2|7,4|7,5|8,3|8,4|1,5h16|1,2t16|h";
+        char test_action_string[] = "1,5|3|0,5";
+
+        State_from_string(&state, test_state_string);
+        Action_from_string(&action, test_action_string);
+
+        State_act(&state, &action);
+
+        if (state.stacks[0][5] != 3 || state.stacks[1][5] != INITIAL_STACK - 3) {
+            puts("Stacks isn't what it should be");
+        }
     }
 
     puts("Done!");

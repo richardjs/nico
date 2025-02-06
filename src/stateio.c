@@ -325,8 +325,17 @@ void Action_from_string(struct Action* action, const char string[])
     int dest_q;
     int dest_r;
 
+    // Stack move
+    if (sscanf(string, "%d,%d|%d|%d,%d", &q, &r, &count, &dest_q, &dest_r) == 5) {
+        action->start.q = q;
+        action->start.r = r;
+        action->count = count;
+        action->end.q = dest_q;
+        action->end.r = dest_r;
+    }
+
     // Tile place
-    if (sscanf(string, "%d,%d%c%c", &q, &r, &d1, &d2) == 4) {
+    else if (sscanf(string, "%d,%d%c%c", &q, &r, &d1, &d2) == 4) {
         action->start.q = q;
         action->start.r = r;
 
@@ -367,15 +376,6 @@ void Action_from_string(struct Action* action, const char string[])
         action->start.q = q;
         action->start.r = r;
         action->count = INITIAL_STACK;
-    }
-
-    // Stack movement
-    else if (sscanf(string, "%d,%d|%d|%d,%d", &q, &r, &count, &dest_q, &dest_r)) {
-        action->start.q = q;
-        action->start.r = r;
-        action->count = count;
-        action->end.q = dest_q;
-        action->end.r = dest_r;
     }
 
     else {
