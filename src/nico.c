@@ -111,7 +111,12 @@ int main(int argc, char* argv[])
             }
 
             for (int i = 0; i < actionc; i++) {
-                Action_print(&actions[i], stdout);
+                // If the action isn't a tile place, print it normally
+                if (actions[i].count == 0) {
+                    Action_print(&actions[i], stdout);
+                }
+
+                // TODO here
             }
 
             return 0;

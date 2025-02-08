@@ -5,6 +5,7 @@
 #include "state.h"
 
 #define TILE_SIZE 4
+#define TILE_PERMUTATIONS 24 // = TILE_SIZE!
 
 enum TileDirection {
     TILE_EAST = 0,
@@ -23,5 +24,7 @@ struct Tile {
 };
 
 void Tile_coords(const struct Tile* tile, struct Coords coords[]);
+
+void Tile_permutations(const struct Tile* tile, struct Coords permutations[][TILE_SIZE]);
 
 #endif

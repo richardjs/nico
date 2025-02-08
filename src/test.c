@@ -1,10 +1,12 @@
 #include "state.h"
 #include "stateio.h"
 #include "stateutil.h"
+#include "tile.h"
 #include <stdio.h>
 #include <string.h>
 
 void State_translate(struct State* state, enum Direction direction);
+void tile_coords_to_string(const struct Coords coords[], char string[]);
 
 void State_print_raw_tile_grid(struct State* state)
 {
@@ -209,6 +211,32 @@ int main()
 
         if (State_terminal(&state)) {
             puts("Wrongly detected terminal state");
+        }
+    }
+
+    // Tile permutations
+    {
+        struct Tile tile;
+        tile.origin.q = 0;
+        tile.origin.r = 0;
+        tile.direction = TILE_SOUTHEAST;
+
+        char coords_string[ACTION_STRING_SIZE];
+
+        puts("original:");
+        struct Coords coords[TILE_SIZE];
+        Tile_coords(&tile, coords);
+        tile_coords_to_string(coords, coords_string);
+        printf("%s\n", coords_string);
+
+        puts("---");
+
+        struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
+        Tile_permutations(&tile, permutations);
+
+        for (int i = 0; i < TILE_PERMUTATIONS; i++) {
+            tile_coords_to_string(&permutations[i][0], coords_string);
+            printf("%s\n", coords_string);
         }
     }
 

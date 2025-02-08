@@ -8,7 +8,7 @@
 #define P2_CHAR 't'
 
 #define STATE_STRING_SIZE 435
-#define ACTION_STRING_SIZE 16
+#define ACTION_STRING_SIZE 24
 
 void State_normalize(struct State* state);
 
@@ -21,5 +21,7 @@ bool State_from_string(struct State* state, struct TileState* tile_state, const 
 void State_to_string(const struct State* state, char string[]);
 void Action_from_string(struct Action* action, const char string[]);
 void Action_to_string(const struct Action* action, char string[]);
+
+void print_tile_coords(const struct Coords[], FILE* stream);
 
 #endif

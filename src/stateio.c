@@ -388,6 +388,17 @@ void Action_from_string(struct Action* action, const char string[])
     }
 }
 
+void tile_coords_to_string(const struct Coords coords[], char string[])
+{
+    int ci = 0;
+    for (int i = 0; i < TILE_SIZE; i++) {
+        ci += snprintf(&string[ci], 2 * TILE_SIZE + 1, "%d,%d", coords[i].q, coords[i].r);
+        if (i != TILE_SIZE - 1) {
+            string[ci++] = '|';
+        }
+    }
+}
+
 void Action_to_string(const struct Action* action, char string[])
 {
     // Tile placement

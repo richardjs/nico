@@ -61,3 +61,45 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         break;
     }
 }
+
+void Tile_permutations(const struct Tile* tile, struct Coords permutations[][TILE_SIZE])
+{
+    struct Coords coords[TILE_SIZE];
+    Tile_coords(tile, coords);
+
+    // Heap's algorithm
+    // https://en.wikipedia.org/wiki/Heap's_algorithm
+
+    int c[TILE_SIZE] = { 0 };
+
+    int p = 0;
+    for (int t = 0; t < TILE_SIZE; t++) {
+        permutations[p][t] = coords[t];
+    }
+    p++;
+
+    int i = 1;
+    while (i < TILE_SIZE) {
+        if (c[i] < i) {
+            struct Coords tmp;
+            if (i % 2 == 0) {
+                tmp = coords[0];
+                coords[0] = coords[1];
+                coords[1] = tmp;
+            } else {
+                tmp = coords[c[i]];
+                coords[c[i]] = coords[i];
+                coords[i] = tmp;
+            }
+            for (int t = 0; t < TILE_SIZE; t++) {
+                permutations[p][t] = coords[t];
+            }
+            p++;
+            c[i] += 1;
+            i = 1;
+        } else {
+            c[i] = 0;
+            i += 1;
+        }
+    }
+}
