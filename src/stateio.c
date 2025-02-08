@@ -16,7 +16,7 @@ void State_translate(struct State* state, enum Direction direction)
 {
     bool tiles[GRID_SIZE][GRID_SIZE];
     uint8_t stacks[GRID_SIZE][GRID_SIZE];
-    memcpy(tiles, state->tiles, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+    memcpy(tiles, state->tile_state->tiles, sizeof(bool) * GRID_SIZE * GRID_SIZE);
     memcpy(stacks, state->stacks, sizeof(uint8_t) * GRID_SIZE * GRID_SIZE);
 
     struct Coords src;
@@ -26,7 +26,7 @@ void State_translate(struct State* state, enum Direction direction)
             dest = src;
             Coords_move(&dest, direction);
 
-            state->tiles[dest.q][dest.r] = tiles[src.q][src.r];
+            state->tile_state->tiles[dest.q][dest.r] = tiles[src.q][src.r];
             state->stacks[dest.q][dest.r] = stacks[src.q][src.r];
         }
     }
@@ -55,7 +55,7 @@ void State_normalize(struct State* state)
     // Check for tiles on q=0
     bool tile_on_axis = false;
     for (int r = 0; r < GRID_SIZE && !tile_on_axis; r++) {
-        tile_on_axis = state->tiles[0][r];
+        tile_on_axis = state->tile_state->tiles[0][r];
     }
     if (!tile_on_axis) {
         State_translate(state, NORTHWEST);
@@ -65,7 +65,7 @@ void State_normalize(struct State* state)
     // Check for tiles on r=0
     tile_on_axis = false;
     for (int q = 0; q < GRID_SIZE && !tile_on_axis; q++) {
-        tile_on_axis = state->tiles[q][0];
+        tile_on_axis = state->tile_state->tiles[q][0];
     }
     if (!tile_on_axis) {
         State_translate(state, NORTHEAST);
@@ -77,7 +77,7 @@ void State_normalize(struct State* state)
     for (int q = 0; q < GRID_SIZE; q++) {
         bool empty_column = true;
         for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->tiles[q][r]) {
+            if (state->tile_state->tiles[q][r]) {
                 empty_column = false;
                 break;
             }
@@ -93,13 +93,13 @@ void State_normalize(struct State* state)
     // words, check for wrapping)
     if (tile_gap) {
         for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->tiles[GRID_SIZE - 1][r]) {
+            if (state->tile_state->tiles[GRID_SIZE - 1][r]) {
                 State_translate(state, NORTHWEST);
                 return State_normalize(state);
             }
         }
         for (int q = 0; q < GRID_SIZE; q++) {
-            if (state->tiles[q][GRID_SIZE - 1]) {
+            if (state->tile_state->tiles[q][GRID_SIZE - 1]) {
                 State_translate(state, NORTHEAST);
                 return State_normalize(state);
             }
@@ -109,7 +109,10 @@ void State_normalize(struct State* state)
 
 void State_print(const struct State* s, FILE* stream)
 {
-    struct State state = *s;
+    struct State state;
+    struct TileState tile_state;
+    State_copy(s, &state, &tile_state);
+
     State_normalize(&state);
 
     // Convert to double-height coordinate space; see
@@ -131,7 +134,7 @@ void State_print(const struct State* s, FILE* stream)
             int x = q;
             int y = 2 * r + q;
 
-            tiles[x][y] = state.tiles[q][r];
+            tiles[x][y] = state.tile_state->tiles[q][r];
             stacks[x][y] = state.stacks[q][r];
 
             struct Coords c = { .q = q, .r = r };
@@ -225,9 +228,9 @@ void State_print(const struct State* s, FILE* stream)
     fprintf(stream, "Turn: %c\n", state.turn == P1 ? P1_CHAR : P2_CHAR);
 }
 
-bool State_from_string(struct State* state, const char s[])
+bool State_from_string(struct State* state, struct TileState* tile_state, const char s[])
 {
-    State_new(state);
+    State_new(state, tile_state);
     char string[STATE_STRING_SIZE];
     strncpy(string, s, STATE_STRING_SIZE - 1);
 
@@ -256,7 +259,7 @@ bool State_from_string(struct State* state, const char s[])
         // Hex token
         if (sscanf(token, "%d,%d", &q, &r) == 2) {
             hexes += 1;
-            state->tiles[q][r] = true;
+            state->tile_state->tiles[q][r] = true;
             goto next_token;
         }
 
@@ -285,13 +288,15 @@ bool State_from_string(struct State* state, const char s[])
 
 void State_to_string(const struct State* s, char string[])
 {
-    struct State state = *s;
+    struct State state;
+    struct TileState tile_state;
+    State_copy(s, &state, &tile_state);
     State_normalize(&state);
 
     int ci = 0;
     for (int q = 0; q < GRID_SIZE; q++) {
         for (int r = 0; r < GRID_SIZE; r++) {
-            if (!state.tiles[q][r]) {
+            if (!state.tile_state->tiles[q][r]) {
                 continue;
             }
 

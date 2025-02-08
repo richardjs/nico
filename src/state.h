@@ -36,12 +36,16 @@ struct Action {
     //   - count is INITIAL_STACK (16)
 };
 
+struct TileState {
+    bool tiles[GRID_SIZE][GRID_SIZE];
+};
+
 struct State {
     // TODO Break out separate TileState that can be shared among states
     // (since it never changes once the place phase is over)
 
     // Core information
-    bool tiles[GRID_SIZE][GRID_SIZE];
+    struct TileState* tile_state;
     uint8_t stacks[GRID_SIZE][GRID_SIZE];
 
     uint8_t remaining_tiles[NUM_PLAYERS];
@@ -56,7 +60,7 @@ struct State {
     uint8_t tile_hexc;
 };
 
-void State_new(struct State* state);
+void State_new(struct State* state, struct TileState* tile_state);
 int State_actions(const struct State* state, struct Action actions[]);
 void State_act(struct State* state, const struct Action* action);
 

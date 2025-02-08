@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
     init_coords();
 
     struct State state;
+    struct TileState tile_state;
 
     enum Command command = NONE;
 
@@ -40,7 +41,7 @@ int main(int argc, char* argv[])
             return 0;
 
         case 'I':
-            State_new(&state);
+            State_new(&state, &tile_state);
             char state_string[STATE_STRING_SIZE];
             State_to_string(&state, state_string);
             printf("%s\n", state_string);
@@ -73,7 +74,7 @@ int main(int argc, char* argv[])
             return ERROR_NO_STATE_GIVEN;
         }
 
-        State_from_string(&state, argv[optind]);
+        State_from_string(&state, &tile_state, argv[optind]);
 
         fprintf(stderr, "input: %s\n", argv[optind]);
         State_print(&state, stderr);

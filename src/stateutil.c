@@ -6,12 +6,19 @@ void State_derive(struct State* state)
     state->tile_hexc = 0;
     for (int q = 0; q < GRID_SIZE; q++) {
         for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->tiles[q][r]) {
+            if (state->tile_state->tiles[q][r]) {
                 state->tile_hexes[state->tile_hexc].q = q;
                 state->tile_hexes[state->tile_hexc++].r = r;
             }
         }
     }
+}
+
+void State_copy(const struct State* src, struct State* state, struct TileState* tile_state)
+{
+    *state = *src;
+    *tile_state = *src->tile_state;
+    state->tile_state = tile_state;
 }
 
 unsigned int State_compare(const struct State* s1, const struct State* s2)
@@ -24,7 +31,7 @@ unsigned int State_compare(const struct State* s1, const struct State* s2)
     for (int q = 0; q < GRID_SIZE; q++) {
         for (int r = 0; r < GRID_SIZE; r++) {
             // .tiles
-            if (s1->tiles[q][r] != s2->tiles[q][r]) {
+            if (s1->tile_state->tiles[q][r] != s2->tile_state->tiles[q][r]) {
                 return 2;
             }
             // .stacks
@@ -104,7 +111,9 @@ bool State_terminal(const struct State* s)
         return false;
     }
 
-    struct State state = *s;
+    struct State state;
+    struct TileState tile_state;
+    State_copy(s, &state, &tile_state);
     State_act(&state, NULL);
 
     return State_actions(&state, actions) == 0;

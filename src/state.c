@@ -2,9 +2,12 @@
 #include "tile.h"
 #include <string.h>
 
-void State_new(struct State* state)
+void State_new(struct State* state, struct TileState* tile_state)
 {
     memset(state, 0, sizeof(struct State));
+    memset(tile_state, 0, sizeof(struct TileState));
+
+    state->tile_state = tile_state;
 
     for (int i = 0; i < NUM_PLAYERS; i++) {
         state->remaining_tiles[i] = PLAYER_TILES;
@@ -43,7 +46,7 @@ int State_place_actions(const struct State* state, struct Action actions[])
             // check if the hex in that direction is empty,
             tile.origin = state->tile_hexes[i];
             Coords_move(&tile.origin, d);
-            if (!state->tiles[tile.origin.q][tile.origin.r]) {
+            if (!state->tile_state->tiles[tile.origin.q][tile.origin.r]) {
                 // and if so, using that as the tile origin, for each tile direction,
                 for (int td = 0; td < NUM_DIRECTIONS; td++) {
                     tile.direction = td;
@@ -52,7 +55,7 @@ int State_place_actions(const struct State* state, struct Action actions[])
                     // (start at 1 because we've already checked the origin)
                     bool tile_clear = true;
                     for (int j = 1; j < TILE_SIZE && tile_clear; j++) {
-                        tile_clear = !state->tiles[place_coords[j].q][place_coords[j].r];
+                        tile_clear = !state->tile_state->tiles[place_coords[j].q][place_coords[j].r];
                     }
 
                     // If it it does, create a place action there.
@@ -106,7 +109,7 @@ int State_actions(const struct State* state, struct Action actions[])
             struct Coords walk = *start;
 
             Coords_move(&walk, d);
-            while (state->tiles[walk.q][walk.r] && state->stacks[walk.q][walk.r] == 0) {
+            while (state->tile_state->tiles[walk.q][walk.r] && state->stacks[walk.q][walk.r] == 0) {
                 end = walk;
                 Coords_move(&walk, d);
             }
@@ -136,7 +139,7 @@ void State_place_act(struct State* state, const struct Action* action)
     Tile_coords(&tile, place_coords);
 
     for (int i = 0; i < TILE_SIZE; i++) {
-        state->tiles[place_coords[i].q][place_coords[i].r] = true;
+        state->tile_state->tiles[place_coords[i].q][place_coords[i].r] = true;
         state->tile_hexes[state->tile_hexc++] = place_coords[i];
     }
 

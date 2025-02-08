@@ -17,7 +17,7 @@ void State_print(const struct State* state, FILE* stream);
 void Action_print(const struct Action* action, FILE* stream);
 
 // Serialized representations
-bool State_from_string(struct State* state, const char string[]);
+bool State_from_string(struct State* state, struct TileState* tile_state, const char string[]);
 void State_to_string(const struct State* state, char string[]);
 void Action_from_string(struct Action* action, const char string[]);
 void Action_to_string(const struct Action* action, char string[]);

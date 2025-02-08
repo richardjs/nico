@@ -5,6 +5,8 @@
 
 void State_derive(struct State* state);
 
+void State_copy(const struct State* src, struct State* state, struct TileState* tile_state);
+
 // Returns >0 if states are not the same
 unsigned int State_compare(const struct State* s1, const struct State* s2);
 bool Action_compare(const struct Action* a1, const struct Action* a2);
