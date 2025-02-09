@@ -388,6 +388,7 @@ void Action_from_string(struct Action* action, const char string[])
     }
 }
 
+// TODO change wrapped coords to negative numbers?
 void tile_coords_to_string(const struct Coords coords[], char string[])
 {
     int ci = 0;

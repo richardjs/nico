@@ -7,6 +7,7 @@
 #include "state.h"
 #include "stateio.h"
 #include "stateutil.h"
+#include "tile.h"
 
 #define VERSION "v.1a"
 
@@ -30,6 +31,8 @@ int main(int argc, char* argv[])
 
     struct State state;
     struct TileState tile_state;
+
+    char* action_arg;
 
     enum Command command = NONE;
 
@@ -65,7 +68,7 @@ int main(int argc, char* argv[])
 
         case 'a':
             command = ACT;
-            Action_from_string(&action, optarg);
+            action_arg = optarg;
             break;
         }
 
@@ -112,16 +115,50 @@ int main(int argc, char* argv[])
 
             for (int i = 0; i < actionc; i++) {
                 // If the action isn't a tile place, print it normally
-                if (actions[i].count == 0) {
+                if (actions[i].count != 0) {
                     Action_print(&actions[i], stdout);
+                    continue;
                 }
 
-                // TODO here
+                // TODO clean this up
+                struct Tile tile = { .origin = actions[i].start, .direction = actions[i].end.q };
+                struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
+                Tile_permutations(&tile, permutations);
+                for (int j = 0; j < TILE_PERMUTATIONS; j++) {
+                    char tile_string[ACTION_STRING_SIZE];
+                    tile_coords_to_string(&permutations[j][0], tile_string);
+                    printf("%s\n", tile_string);
+                }
             }
 
             return 0;
 
         case ACT:
+            // Parse potential tile action
+            // TODO This is an unabashed quick fix
+            for (int i = 0; i < actionc; i++) {
+                // If the action isn't a tile place, print it normally
+                if (actions[i].count != 0) {
+                    continue;
+                }
+
+                struct Tile tile = { .origin = actions[i].start, .direction = actions[i].end.q };
+                struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
+                Tile_permutations(&tile, permutations);
+                for (int j = 0; j < TILE_PERMUTATIONS; j++) {
+                    char tile_string[ACTION_STRING_SIZE];
+                    tile_coords_to_string(&permutations[j][0], tile_string);
+
+                    if (strcmp(action_arg, tile_string) == 0) {
+                        action = actions[i];
+                        goto action_parsed;
+                    }
+                }
+            }
+
+            Action_from_string(&action, action_arg);
+        action_parsed:
+
             State_act(&state, &action);
 
             // Check if we need to skip turns
