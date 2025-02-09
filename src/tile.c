@@ -67,39 +67,27 @@ void Tile_permutations(const struct Tile* tile, struct Coords permutations[][TIL
     struct Coords coords[TILE_SIZE];
     Tile_coords(tile, coords);
 
-    // Heap's algorithm
-    // https://en.wikipedia.org/wiki/Heap's_algorithm
+    // TODO This could be a proper permutation algorithm, instead of
+    // this... rustic solution. On the other hand, unlike some
+    // permutation algorithms, it's comprehensible at first glance.
+    int i = 0;
+    for (int c1 = 0; c1 < TILE_SIZE; c1++) {
+        for (int c2 = 0; c2 < TILE_SIZE; c2++) {
+            if (c1 == c2)
+                continue;
+            for (int c3 = 0; c3 < TILE_SIZE; c3++) {
+                if ((c3 == c1) || (c3 == c2))
+                    continue;
+                for (int c4 = 0; c4 < TILE_SIZE; c4++) {
+                    if ((c4 == c1) || (c4 == c2) || (c4 == c3))
+                        continue;
 
-    int c[TILE_SIZE] = { 0 };
-
-    int p = 0;
-    for (int t = 0; t < TILE_SIZE; t++) {
-        permutations[p][t] = coords[t];
-    }
-    p++;
-
-    int i = 1;
-    while (i < TILE_SIZE) {
-        if (c[i] < i) {
-            struct Coords tmp;
-            if (i % 2 == 0) {
-                tmp = coords[0];
-                coords[0] = coords[1];
-                coords[1] = tmp;
-            } else {
-                tmp = coords[c[i]];
-                coords[c[i]] = coords[i];
-                coords[i] = tmp;
+                    permutations[i][0] = coords[c1];
+                    permutations[i][1] = coords[c2];
+                    permutations[i][2] = coords[c3];
+                    permutations[i++][3] = coords[c4];
+                }
             }
-            for (int t = 0; t < TILE_SIZE; t++) {
-                permutations[p][t] = coords[t];
-            }
-            p++;
-            c[i] += 1;
-            i = 1;
-        } else {
-            c[i] = 0;
-            i += 1;
         }
     }
 }

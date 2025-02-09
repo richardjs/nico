@@ -214,32 +214,6 @@ int main()
         }
     }
 
-    // Tile permutations
-    {
-        struct Tile tile;
-        tile.origin.q = 0;
-        tile.origin.r = 0;
-        tile.direction = TILE_SOUTHEAST;
-
-        char coords_string[ACTION_STRING_SIZE];
-
-        puts("original:");
-        struct Coords coords[TILE_SIZE];
-        Tile_coords(&tile, coords);
-        tile_coords_to_string(coords, coords_string);
-        printf("%s\n", coords_string);
-
-        puts("---");
-
-        struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
-        Tile_permutations(&tile, permutations);
-
-        for (int i = 0; i < TILE_PERMUTATIONS; i++) {
-            tile_coords_to_string(&permutations[i][0], coords_string);
-            printf("%s\n", coords_string);
-        }
-    }
-
     puts("Done!");
 
     return 0;
