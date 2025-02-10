@@ -20,7 +20,7 @@ clean:
 
 coords.o: coords.h state.h
 state.o: coords.h state.h tile.h
-stateio.o: coords.h state.h stateio.h stateutil.h
+stateio.o: coords.h state.h stateio.h stateutil.h tile.h
 stateutil.o: state.h stateutil.h
 test: state.h stateio.h stateutil.h tile.h
 

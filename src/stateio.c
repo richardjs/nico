@@ -52,8 +52,28 @@ void State_normalize(struct State* state)
         return;
     }
 
-    // Check for tiles on q=0
     bool tile_on_axis = false;
+    // Check for tiles on q=GRID_SIZE-1
+    for (int r = 0; r < GRID_SIZE && !tile_on_axis; r++) {
+        tile_on_axis = state->tile_state->tiles[GRID_SIZE - 1][r];
+    }
+    if (tile_on_axis) {
+        State_translate(state, NORTHWEST);
+        return State_normalize(state);
+    }
+
+    // Check for tiles on r=GRID_SIZE-1
+    tile_on_axis = false;
+    for (int q = 0; q < GRID_SIZE && !tile_on_axis; q++) {
+        tile_on_axis = state->tile_state->tiles[q][GRID_SIZE - 1];
+    }
+    if (tile_on_axis) {
+        State_translate(state, NORTHEAST);
+        return State_normalize(state);
+    }
+
+    // Check for tiles on q=0
+    tile_on_axis = false;
     for (int r = 0; r < GRID_SIZE && !tile_on_axis; r++) {
         tile_on_axis = state->tile_state->tiles[0][r];
     }
@@ -70,40 +90,6 @@ void State_normalize(struct State* state)
     if (!tile_on_axis) {
         State_translate(state, NORTHEAST);
         return State_normalize(state);
-    }
-
-    // Check for a gap between tiles
-    bool tile_gap = false;
-    for (int q = 0; q < GRID_SIZE; q++) {
-        bool empty_column = true;
-        for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->tile_state->tiles[q][r]) {
-                empty_column = false;
-                break;
-            }
-        }
-        if (empty_column) {
-            tile_gap = true;
-            break;
-        }
-    }
-
-    // If there's a tile gap, the tiles are not stretched across the
-    // full grid and thus shouldn't be against the far edges (in other
-    // words, check for wrapping)
-    if (tile_gap) {
-        for (int r = 0; r < GRID_SIZE; r++) {
-            if (state->tile_state->tiles[GRID_SIZE - 1][r]) {
-                State_translate(state, NORTHWEST);
-                return State_normalize(state);
-            }
-        }
-        for (int q = 0; q < GRID_SIZE; q++) {
-            if (state->tile_state->tiles[q][GRID_SIZE - 1]) {
-                State_translate(state, NORTHEAST);
-                return State_normalize(state);
-            }
-        }
     }
 }
 

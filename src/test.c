@@ -58,6 +58,8 @@ int main()
         State_actions(&state, actions);
         State_act(&state, &actions[0]);
 
+        State_normalize(&state);
+
         struct State translated = state;
 
         State_translate(&translated, SOUTH);
@@ -82,6 +84,8 @@ int main()
         State_new(&state, &tile_state);
         State_actions(&state, actions);
         State_act(&state, &actions[0]);
+
+        State_normalize(&state);
 
         struct State translated = state;
 
@@ -211,6 +215,17 @@ int main()
 
         if (State_terminal(&state)) {
             puts("Wrongly detected terminal state");
+        }
+    }
+
+    // Normalize and calulate actionis for long board ("edge" case, ha) without hanging
+    {
+        char test_state_string[] = "0,23|0,22|1,22|1,21|2,20|2,19|3,19|3,18|4,17|4,16|5,16|5,15|6,14|6,13|7,13|7,12|8,11|8,10|9,10|9,9|10,8|10,7|11,7|11,6|12,5|12,4|13,4|13,3|14,2|14,1|15,1|15,0|15,0h3|h";
+        State_from_string(&state, &tile_state, test_state_string);
+        State_normalize(&state);
+        int actionc = State_actions(&state, actions);
+        if (actionc != 4) {
+            puts("invalid number of actions for long state");
         }
     }
 
