@@ -1,4 +1,5 @@
 #include "tile.h"
+#include "coords.h"
 
 const char* TILE_DIRECTION_CODES[] = {
     "ee", "se", "sw", "ww", "nw", "ne"

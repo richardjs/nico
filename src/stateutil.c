@@ -1,4 +1,5 @@
 #include "stateutil.h"
+#include "coords.h"
 #include "state.h"
 
 void State_derive(struct State* state)

@@ -21,7 +21,7 @@ clean:
 coords.o: coords.h state.h
 state.o: coords.h state.h tile.h
 stateio.o: coords.h state.h stateio.h stateutil.h tile.h
-stateutil.o: state.h stateutil.h
-test: state.h stateio.h stateutil.h tile.h
+stateutil.o: coords.h state.h stateutil.h
+tile.o: coords.h tile.h
 
 # vim: set noexpandtab sts=0 ts=4:

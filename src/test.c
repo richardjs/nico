@@ -18,6 +18,16 @@ void State_print_raw_tile_grid(struct State* state)
     }
 }
 
+void State_print_raw_stack_grid(struct State* state)
+{
+    for (int r = 0; r < GRID_SIZE; r++) {
+        for (int q = 0; q < GRID_SIZE; q++) {
+            printf("%d", state->stacks[q][r]);
+        }
+        printf("\n");
+    }
+}
+
 int main()
 {
     puts("Nico tests...");
