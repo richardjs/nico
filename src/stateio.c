@@ -379,7 +379,18 @@ void tile_coords_to_string(const struct Coords coords[], char string[])
 {
     int ci = 0;
     for (int i = 0; i < TILE_SIZE; i++) {
-        ci += snprintf(&string[ci], 2 * TILE_SIZE + 1, "%d,%d", coords[i].q, coords[i].r);
+        int q = coords[i].q;
+        int r = coords[i].r;
+
+        if (q > COORDS_WRAPPING_THRESHOLD) {
+            q -= GRID_SIZE;
+        }
+
+        if (r > COORDS_WRAPPING_THRESHOLD) {
+            r -= GRID_SIZE;
+        }
+
+        ci += snprintf(&string[ci], 2 * TILE_SIZE + 1, "%d,%d", q, r);
         if (i != TILE_SIZE - 1) {
             string[ci++] = '|';
         }

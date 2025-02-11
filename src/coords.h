@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define GRID_SIZE 25
+#define GRID_SIZE 26
 
 #define NUM_DIRECTIONS 6
 

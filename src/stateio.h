@@ -10,6 +10,8 @@
 #define STATE_STRING_SIZE 435
 #define ACTION_STRING_SIZE 24
 
+#define COORDS_WRAPPING_THRESHOLD (GRID_SIZE - 4)
+
 void State_normalize(struct State* state);
 
 // Console rendering
