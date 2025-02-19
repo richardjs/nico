@@ -62,9 +62,9 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         coords[i++] = walk;
         break;
     case TILE_MID_NORTH:
-        Coords_move(&walk, NORTHEAST);
-        coords[i++] = walk;
         Coords_move(&walk, NORTHWEST);
+        coords[i++] = walk;
+        Coords_move(&walk, NORTHEAST);
         coords[i++] = walk;
         Coords_move(&walk, SOUTHEAST);
         coords[i++] = walk;

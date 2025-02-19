@@ -265,6 +265,32 @@ int main()
         }
     }
 
+    // Softserve issue #9, part 2
+    {
+        char test_state_string[] = "1,2|1,3|2,2|2,3|t";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        int actionc = State_actions(&state, actions);
+        bool success = false;
+        for (int i = 0; i < actionc && !success; i++) {
+            struct State after;
+            struct TileState after_tiles;
+            State_copy(&state, &after, &after_tiles);
+            State_act(&after, &actions[i]);
+
+            if (after.tile_state->tiles[0][1]
+                && after.tile_state->tiles[1][0]
+                && after.tile_state->tiles[1][1]
+                && after.tile_state->tiles[2][0]) {
+                success = true;
+            }
+        }
+
+        if (!success) {
+            puts("Not able to place tiles connected by middle hexes, part 2");
+        }
+    }
+
     puts("Done!");
 
     return 0;
