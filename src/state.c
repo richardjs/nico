@@ -26,12 +26,12 @@ int State_place_actions(const struct State* state, struct Action actions[])
         actions[c++].count = 0;
 
         actions[c].start.q = 0;
-        actions[c].start.r = 1;
+        actions[c].start.r = 0;
         actions[c].end.q = TILE_EAST;
         actions[c++].count = 0;
 
         actions[c].start.q = 0;
-        actions[c].start.r = 2;
+        actions[c].start.r = 0;
         actions[c].end.q = TILE_NORTHEAST;
         actions[c++].count = 0;
         return c;
