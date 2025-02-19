@@ -73,6 +73,42 @@ int State_place_actions(const struct State* state, struct Action actions[])
     return c;
 }
 
+int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool flood[][GRID_SIZE])
+{
+    memset(flood, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+
+    struct Coords stack[GRID_SIZE * GRID_SIZE];
+    int stackc = 0;
+    stack[stackc++] = *start;
+
+    bool crumbs[GRID_SIZE][GRID_SIZE] = { false };
+    crumbs[start->q][start->r] = true;
+
+    int walked = 0;
+
+    struct Coords walk;
+
+    while (stackc > 0) {
+        struct Coords pos = stack[--stackc];
+
+        flood[pos.q][pos.r] = true;
+        walked++;
+
+        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+            walk = pos;
+            Coords_move(&walk, d);
+            if (tiles[walk.q][walk.r] || crumbs[walk.q][walk.r]) {
+                continue;
+            }
+
+            stack[stackc++] = walk;
+            crumbs[walk.q][walk.r] = true;
+        }
+    }
+
+    return walked;
+}
+
 int State_actions(const struct State* state, struct Action actions[])
 {
     // Tile placement phase

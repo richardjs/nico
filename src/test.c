@@ -7,6 +7,7 @@
 
 void State_translate(struct State* state, enum Direction direction);
 void tile_coords_to_string(const struct Coords coords[], char string[]);
+int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool flood[][GRID_SIZE]);
 
 void State_print_raw_tile_grid(struct State* state)
 {
@@ -288,6 +289,48 @@ int main()
 
         if (!success) {
             puts("Not able to place tiles connected by middle hexes, part 2");
+        }
+    }
+
+    // flood fill
+    {
+        State_new(&state, &tile_state);
+        struct Coords start = { .q = 0, .r = 0 };
+        bool flood[GRID_SIZE][GRID_SIZE];
+        int count = flood_fill(state.tile_state->tiles, &start, flood);
+
+        if (count != GRID_SIZE * GRID_SIZE) {
+            puts("empty flood fill did not get expected count");
+        }
+
+        char test_state_string[] = "1,0|1,1|0,1|0,0|1,2|1,3|0,3|0,2|3,3|3,4|2,4|2,3|5,2|5,3|4,3|4,2|3,-1|3,0|2,0|2,-1|5,-1|5,0|4,0|4,-1|7,0|7,1|6,1|6,0|7,2|7,3|6,3|6,2|h";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        start.q = 2;
+        start.r = 1;
+
+        count = flood_fill(state.tile_state->tiles, &start, flood);
+        if (count != 6) {
+            printf("hole flood fill incorrect: %d != 6\n", count);
+        }
+
+        start.q = 0;
+        start.r = 4;
+
+        count = flood_fill(state.tile_state->tiles, &start, flood);
+        if (count != 638) {
+            printf("hole flood fill incorrect: %d != 638\n", count);
+        }
+    }
+
+    // Restrict start place actions to edges
+    {
+        char test_state_string[] = "1,0|1,1|0,1|0,0|1,2|1,3|0,3|0,2|3,3|3,4|2,4|2,3|5,2|5,3|4,3|4,2|3,-1|3,0|2,0|2,-1|5,-1|5,0|4,0|4,-1|7,0|7,1|6,1|6,0|7,2|7,3|6,3|6,2|h";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        int actionc = State_actions(&state, actions);
+        if (actionc != 22) {
+            printf("Incorrect number of actions for stack place: %d\n", actionc);
         }
     }
 
