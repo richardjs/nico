@@ -22,17 +22,17 @@ int State_place_actions(const struct State* state, struct Action actions[])
     if (state->remaining_tiles[P1] == PLAYER_TILES) {
         actions[c].start.q = 0;
         actions[c].start.r = 0;
-        actions[c].end.q = TILE_SOUTHEAST;
+        actions[c].end.q = TILE_END_SOUTHEAST;
         actions[c++].count = 0;
 
         actions[c].start.q = 0;
         actions[c].start.r = 0;
-        actions[c].end.q = TILE_EAST;
+        actions[c].end.q = TILE_END_EAST;
         actions[c++].count = 0;
 
         actions[c].start.q = 0;
         actions[c].start.r = 0;
-        actions[c].end.q = TILE_NORTHEAST;
+        actions[c].end.q = TILE_END_NORTHEAST;
         actions[c++].count = 0;
         return c;
     }
@@ -48,7 +48,7 @@ int State_place_actions(const struct State* state, struct Action actions[])
             Coords_move(&tile.origin, d);
             if (!state->tile_state->tiles[tile.origin.q][tile.origin.r]) {
                 // and if so, using that as the tile origin, for each tile direction,
-                for (int td = 0; td < NUM_DIRECTIONS; td++) {
+                for (int td = 0; td < NUM_TILE_DIRECTIONS; td++) {
                     tile.direction = td;
                     Tile_coords(&tile, place_coords);
                     // see if that tile will fit.

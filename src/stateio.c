@@ -332,28 +332,28 @@ void Action_from_string(struct Action* action, const char string[])
 
         switch (d1) {
         case 'e':
-            action->end.q = TILE_EAST;
+            action->end.q = TILE_END_EAST;
             break;
         case 's':
             switch (d2) {
             case 'e':
-                action->end.q = TILE_SOUTHEAST;
+                action->end.q = TILE_END_SOUTHEAST;
                 break;
             case 'w':
-                action->end.q = TILE_SOUTHWEST;
+                action->end.q = TILE_END_SOUTHWEST;
                 break;
             }
             break;
         case 'w':
-            action->end.q = TILE_WEST;
+            action->end.q = TILE_END_WEST;
             break;
         case 'n':
             switch (d2) {
             case 'e':
-                action->end.q = TILE_NORTHEAST;
+                action->end.q = TILE_END_NORTHEAST;
                 break;
             case 'w':
-                action->end.q = TILE_NORTHWEST;
+                action->end.q = TILE_END_NORTHWEST;
                 break;
             }
             break;

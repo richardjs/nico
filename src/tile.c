@@ -2,7 +2,8 @@
 #include "coords.h"
 
 const char* TILE_DIRECTION_CODES[] = {
-    "ee", "se", "sw", "ww", "nw", "ne"
+    "ee", "se", "sw", "ww", "nw", "ne",
+    "mn", "mm", "mf", "ms", "ma", "mw"
 };
 
 void Tile_coords(const struct Tile* tile, struct Coords coords[])
@@ -12,7 +13,7 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
 
     struct Coords walk = tile->origin;
     switch (tile->direction) {
-    case TILE_EAST:
+    case TILE_END_EAST:
         Coords_move(&walk, NORTHEAST);
         coords[i++] = walk;
         Coords_move(&walk, SOUTH);
@@ -20,7 +21,7 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         Coords_move(&walk, NORTHEAST);
         coords[i++] = walk;
         break;
-    case TILE_SOUTHEAST:
+    case TILE_END_SOUTHEAST:
         Coords_move(&walk, SOUTH);
         coords[i++] = walk;
         Coords_move(&walk, NORTHEAST);
@@ -28,7 +29,7 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         Coords_move(&walk, SOUTH);
         coords[i++] = walk;
         break;
-    case TILE_SOUTHWEST:
+    case TILE_END_SOUTHWEST:
         Coords_move(&walk, SOUTH);
         coords[i++] = walk;
         Coords_move(&walk, NORTHWEST);
@@ -36,7 +37,7 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         Coords_move(&walk, SOUTH);
         coords[i++] = walk;
         break;
-    case TILE_WEST:
+    case TILE_END_WEST:
         Coords_move(&walk, NORTHWEST);
         coords[i++] = walk;
         Coords_move(&walk, SOUTH);
@@ -44,7 +45,7 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         Coords_move(&walk, NORTHWEST);
         coords[i++] = walk;
         break;
-    case TILE_NORTHWEST:
+    case TILE_END_NORTHWEST:
         Coords_move(&walk, NORTH);
         coords[i++] = walk;
         Coords_move(&walk, SOUTHWEST);
@@ -52,12 +53,60 @@ void Tile_coords(const struct Tile* tile, struct Coords coords[])
         Coords_move(&walk, NORTH);
         coords[i++] = walk;
         break;
-    case TILE_NORTHEAST:
+    case TILE_END_NORTHEAST:
         Coords_move(&walk, NORTH);
         coords[i++] = walk;
         Coords_move(&walk, SOUTHEAST);
         coords[i++] = walk;
         Coords_move(&walk, NORTH);
+        coords[i++] = walk;
+        break;
+    case TILE_MID_NORTH:
+        Coords_move(&walk, NORTHEAST);
+        coords[i++] = walk;
+        Coords_move(&walk, NORTHWEST);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTHEAST);
+        coords[i++] = walk;
+        break;
+    case TILE_MID_NORTHEAST:
+        Coords_move(&walk, NORTH);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTHEAST);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTH);
+        coords[i++] = walk;
+        break;
+    case TILE_MID_SOUTHEAST:
+        Coords_move(&walk, NORTHEAST);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTH);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTHWEST);
+        coords[i++] = walk;
+        break;
+    case TILE_MID_SOUTH:
+        Coords_move(&walk, SOUTHWEST);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTHEAST);
+        coords[i++] = walk;
+        Coords_move(&walk, NORTHEAST);
+        coords[i++] = walk;
+        break;
+    case TILE_MID_SOUTHWEST:
+        Coords_move(&walk, NORTHWEST);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTH);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTHEAST);
+        coords[i++] = walk;
+        break;
+    case TILE_MID_NORTHWEST:
+        Coords_move(&walk, NORTH);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTHWEST);
+        coords[i++] = walk;
+        Coords_move(&walk, SOUTH);
         coords[i++] = walk;
         break;
     }

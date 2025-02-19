@@ -228,14 +228,40 @@ int main()
         }
     }
 
-    // Normalize and calulate actionis for long board ("edge" case, ha) without hanging
+    // Normalize and calulate actions for long board ("edge" case, ha) without hanging
     {
         char test_state_string[] = "0,23|0,22|1,22|1,21|2,20|2,19|3,19|3,18|4,17|4,16|5,16|5,15|6,14|6,13|7,13|7,12|8,11|8,10|9,10|9,9|10,8|10,7|11,7|11,6|12,5|12,4|13,4|13,3|14,2|14,1|15,1|15,0|15,0h3|h";
         State_from_string(&state, &tile_state, test_state_string);
         State_normalize(&state);
         int actionc = State_actions(&state, actions);
         if (actionc != 4) {
-            puts("invalid number of actions for long state");
+            puts("Incorrect number of actions for long state");
+        }
+    }
+
+    // Softserve issue #9
+    {
+        char test_state_string[] = "0,0|0,1|1,0|1,1|t";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        int actionc = State_actions(&state, actions);
+        bool success = false;
+        for (int i = 0; i < actionc && !success; i++) {
+            struct State after;
+            struct TileState after_tiles;
+            State_copy(&state, &after, &after_tiles);
+            State_act(&after, &actions[i]);
+
+            if (after.tile_state->tiles[2][1]
+                && after.tile_state->tiles[2][2]
+                && after.tile_state->tiles[3][0]
+                && after.tile_state->tiles[3][1]) {
+                success = true;
+            }
+        }
+
+        if (!success) {
+            puts("Not able to place tiles connected by middle hexes");
         }
     }
 
