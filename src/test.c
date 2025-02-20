@@ -164,9 +164,9 @@ int main()
         State_normalize(&state);
 
         actionc = State_actions(&state, actions);
-        if (actionc != 32) {
+        if (actionc != 21) {
             State_print(&state, stdout);
-            printf("Initial place action count %d != 32\n", actionc);
+            printf("Initial place action count %d != 21\n", actionc);
             for (int i = 0; i < actionc; i++) {
                 Action_print(&actions[i], stdout);
             }
@@ -175,9 +175,9 @@ int main()
         State_act(&state, &actions[0]);
         actionc = State_actions(&state, actions);
 
-        if (actionc != 31) {
+        if (actionc != 20) {
             State_print(&state, stdout);
-            printf("Second initial place action count %d != 31\n", actionc);
+            printf("Second initial place action count %d != 20\n", actionc);
             for (int i = 0; i < actionc; i++) {
                 Action_print(&actions[i], stdout);
             }

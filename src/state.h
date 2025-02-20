@@ -16,6 +16,9 @@
 
 #define MAX_ACTIONS 630
 
+// How many hexes can a hole in the board contain; used in perimeter detection
+#define MAX_HOLE_SIZE 24
+
 enum Player {
     P1 = 0,
     P2

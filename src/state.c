@@ -73,9 +73,9 @@ int State_place_actions(const struct State* state, struct Action actions[])
     return c;
 }
 
-int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool flood[][GRID_SIZE])
+int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool perimeter[][GRID_SIZE])
 {
-    memset(flood, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+    memset(perimeter, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
 
     struct Coords stack[GRID_SIZE * GRID_SIZE];
     int stackc = 0;
@@ -91,13 +91,16 @@ int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool f
     while (stackc > 0) {
         struct Coords pos = stack[--stackc];
 
-        flood[pos.q][pos.r] = true;
         walked++;
 
         for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
             walk = pos;
             Coords_move(&walk, d);
-            if (tiles[walk.q][walk.r] || crumbs[walk.q][walk.r]) {
+            if (tiles[walk.q][walk.r]) {
+                perimeter[walk.q][walk.r] = true;
+                continue;
+            }
+            if (crumbs[walk.q][walk.r]) {
                 continue;
             }
 
@@ -107,6 +110,23 @@ int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool f
     }
 
     return walked;
+}
+
+void State_find_perimeter(struct State* state, bool perimeter[][GRID_SIZE])
+{
+    struct Coords start;
+    for (start.q = 0; start.q < GRID_SIZE; start.q++) {
+        for (start.r = 0; start.r < GRID_SIZE; start.r++) {
+            if (state->tile_state->tiles[start.q][start.r]) {
+                continue;
+            }
+            memset(perimeter, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+            int count = flood_fill(state->tile_state->tiles, &start, perimeter);
+            if (count > MAX_HOLE_SIZE) {
+                return;
+            }
+        }
+    }
 }
 
 int State_actions(const struct State* state, struct Action actions[])
@@ -120,8 +140,16 @@ int State_actions(const struct State* state, struct Action actions[])
 
     // Initial stack placement
     if (state->player_stackc[state->turn] == 0) {
+        // TODO we could store this in tile_state instead of calculating it twice
+        // otoh, we only do it twice per game
+        bool perimeter[GRID_SIZE][GRID_SIZE];
+        State_find_perimeter(state, perimeter);
+
         for (int i = 0; i < state->tile_hexc; i++) {
             const struct Coords* hex = &state->tile_hexes[i];
+            if (!perimeter[hex->q][hex->r]) {
+                continue;
+            }
             if (state->stacks[hex->q][hex->r]) {
                 continue;
             }
