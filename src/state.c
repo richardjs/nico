@@ -73,7 +73,7 @@ int State_place_actions(const struct State* state, struct Action actions[])
     return c;
 }
 
-int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool perimeter[][GRID_SIZE])
+int flood_fill_empty_hexes(const bool tiles[][GRID_SIZE], const struct Coords* start, bool perimeter[][GRID_SIZE])
 {
     memset(perimeter, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
 
@@ -112,7 +112,43 @@ int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool p
     return walked;
 }
 
-void State_find_perimeter(struct State* state, bool perimeter[][GRID_SIZE])
+int flood_fill_stacks(const bool tiles[][GRID_SIZE], const struct Coords* start)
+{
+    struct Coords stack[GRID_SIZE * GRID_SIZE];
+    int stackc = 0;
+    stack[stackc++] = *start;
+
+    bool crumbs[GRID_SIZE][GRID_SIZE] = { false };
+    crumbs[start->q][start->r] = true;
+
+    int walked = 0;
+
+    struct Coords walk;
+
+    while (stackc > 0) {
+        struct Coords pos = stack[--stackc];
+
+        walked++;
+
+        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+            walk = pos;
+            Coords_move(&walk, d);
+            if (!tiles[walk.q][walk.r]) {
+                continue;
+            }
+            if (crumbs[walk.q][walk.r]) {
+                continue;
+            }
+
+            stack[stackc++] = walk;
+            crumbs[walk.q][walk.r] = true;
+        }
+    }
+
+    return walked;
+}
+
+void State_find_perimeter(const struct State* state, bool perimeter[][GRID_SIZE])
 {
     struct Coords start;
     for (start.q = 0; start.q < GRID_SIZE; start.q++) {
@@ -121,7 +157,7 @@ void State_find_perimeter(struct State* state, bool perimeter[][GRID_SIZE])
                 continue;
             }
             memset(perimeter, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
-            int count = flood_fill(state->tile_state->tiles, &start, perimeter);
+            int count = flood_fill_empty_hexes(state->tile_state->tiles, &start, perimeter);
             if (count > MAX_HOLE_SIZE) {
                 return;
             }
@@ -243,4 +279,55 @@ void State_act(struct State* state, const struct Action* action)
 
 next_turn:
     state->turn = !state->turn;
+}
+
+enum Player State_winner(const struct State* state)
+{
+    if (state->player_stackc[P1] > state->player_stackc[P2]) {
+        return P1;
+    } else if (state->player_stackc[P2] > state->player_stackc[P1]) {
+        return P2;
+    }
+
+    bool player_stacks[GRID_SIZE][GRID_SIZE] = { 0 };
+    for (int i = 0; i < state->player_stackc[P1]; i++) {
+        player_stacks[state->player_stacks[P1][i].q][state->player_stacks[P1][i].r] = true;
+    }
+
+    // TODO This can be optimized to not calculate multiple times for the same area
+    int p1_max_area = 0;
+    for (int i = 0; i < state->player_stackc[P1]; i++) {
+        int area = flood_fill_stacks(
+            player_stacks,
+            state->player_stacks[P1]);
+
+        if (area > p1_max_area) {
+            p1_max_area = area;
+        }
+    }
+
+    memset(player_stacks, 0, sizeof(bool) * GRID_SIZE * GRID_SIZE);
+    for (int i = 0; i < state->player_stackc[P2]; i++) {
+        player_stacks[state->player_stacks[P2][i].q][state->player_stacks[P2][i].r] = true;
+    }
+
+    int p2_max_area = 0;
+    for (int i = 0; i < state->player_stackc[P2]; i++) {
+        int area = flood_fill_stacks(
+            player_stacks,
+            state->player_stacks[P2]);
+
+        if (area > p1_max_area) {
+            return P2;
+        }
+        if (area > p2_max_area) {
+            p2_max_area = area;
+        }
+    }
+
+    if (p1_max_area > p2_max_area) {
+        return P1;
+    }
+
+    return DRAW;
 }

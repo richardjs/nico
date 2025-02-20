@@ -7,7 +7,7 @@
 
 void State_translate(struct State* state, enum Direction direction);
 void tile_coords_to_string(const struct Coords coords[], char string[]);
-int flood_fill(const bool tiles[][GRID_SIZE], const struct Coords* start, bool flood[][GRID_SIZE]);
+int flood_fill_empty_hexes(const bool tiles[][GRID_SIZE], const struct Coords* start, bool flood[][GRID_SIZE]);
 
 void State_print_raw_tile_grid(struct State* state)
 {
@@ -297,7 +297,7 @@ int main()
         State_new(&state, &tile_state);
         struct Coords start = { .q = 0, .r = 0 };
         bool flood[GRID_SIZE][GRID_SIZE];
-        int count = flood_fill(state.tile_state->tiles, &start, flood);
+        int count = flood_fill_empty_hexes(state.tile_state->tiles, &start, flood);
 
         if (count != GRID_SIZE * GRID_SIZE) {
             puts("empty flood fill did not get expected count");
@@ -309,7 +309,7 @@ int main()
         start.q = 2;
         start.r = 1;
 
-        count = flood_fill(state.tile_state->tiles, &start, flood);
+        count = flood_fill_empty_hexes(state.tile_state->tiles, &start, flood);
         if (count != 6) {
             printf("hole flood fill incorrect: %d != 6\n", count);
         }
@@ -317,9 +317,9 @@ int main()
         start.q = 0;
         start.r = 4;
 
-        count = flood_fill(state.tile_state->tiles, &start, flood);
+        count = flood_fill_empty_hexes(state.tile_state->tiles, &start, flood);
         if (count != 638) {
-            printf("hole flood fill incorrect: %d != 638\n", count);
+            printf("open flood fill incorrect: %d != 638\n", count);
         }
     }
 
@@ -331,6 +331,35 @@ int main()
         int actionc = State_actions(&state, actions);
         if (actionc != 22) {
             printf("Incorrect number of actions for stack place: %d\n", actionc);
+        }
+    }
+
+    // Winner detection
+    {
+        char test_state_string[] = "0,7|1,4|1,5|1,6|1,7|1,8|2,4|2,5|2,6|2,7|2,8|3,1|3,3|3,4|3,5|3,6|3,7|4,0|4,1|4,2|4,3|4,4|4,5|4,6|5,0|5,1|5,5|5,6|6,0|6,1|6,5|7,0|4,1h1|3,1h12|5,0h1|5,1h1|6,0t9|4,0t2|7,0t4|6,1t1|4,2h1|t";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        if (State_winner(&state) != P1) {
+            puts("incorrect winner for state");
+            State_print(&state, stdout);
+        }
+    }
+    {
+        char test_state_string[] = "0,7|1,4|1,5|1,6|1,7|1,8|2,4|2,5|2,6|2,7|2,8|3,1|3,3|3,4|3,5|3,6|3,7|4,0|4,1|4,2|4,3|4,4|4,5|4,6|5,0|5,1|5,5|5,6|6,0|6,1|6,5|7,0|4,1h1|3,1h13|5,0t1|5,1h1|6,0t9|4,0t2|7,0t4|6,1h1|t";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        if (State_winner(&state) != DRAW) {
+            puts("incorrect winner for state");
+            State_print(&state, stdout);
+        }
+    }
+    {
+        char test_state_string[] = "0,7|1,4|1,5|1,6|1,7|1,8|2,4|2,5|2,6|2,7|2,8|3,1|3,3|3,4|3,5|3,6|3,7|4,0|4,1|4,2|4,3|4,4|4,5|4,6|5,0|5,1|5,5|5,6|6,0|6,1|6,5|7,0|4,1h1|3,1h13|5,0h1|5,1h1|6,0t9|4,0t2|4,2h1|4,3t1|7,0t4|6,1t1|t";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        if (State_winner(&state) != P1) {
+            puts("incorrect winner for state");
+            State_print(&state, stdout);
         }
     }
 
