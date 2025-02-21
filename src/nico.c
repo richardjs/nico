@@ -16,6 +16,7 @@ enum Command {
     PRINT,
     NORMALIZE,
     LIST_ACTIONS,
+    WINNER,
     RANDOM,
     ACT
 };
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vIPnltsrxa:i:c:w:j:k:z:b:d:p:u:o:e:")) != -1) {
+    while ((opt = getopt(argc, argv, "vIPnlWra:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -60,6 +61,10 @@ int main(int argc, char* argv[])
 
         case 'l':
             command = LIST_ACTIONS;
+            break;
+
+        case 'W':
+            command = WINNER;
             break;
 
         case 'r':
@@ -131,6 +136,24 @@ int main(int argc, char* argv[])
                 }
             }
 
+            return 0;
+
+        case WINNER:
+            if (actionc != 0) {
+                puts("none");
+                return 0;
+            }
+            switch (State_winner(&state)) {
+            case P1:
+                puts("h");
+                break;
+            case P2:
+                puts("t");
+                break;
+            case DRAW:
+                puts("draw");
+                break;
+            }
             return 0;
 
         case ACT:
