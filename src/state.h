@@ -69,6 +69,8 @@ void State_new(struct State* state, struct TileState* tile_state);
 int State_actions(const struct State* state, struct Action actions[]);
 void State_act(struct State* state, const struct Action* action);
 
+void State_copy(const struct State* src, struct State* state, struct TileState* tile_state);
+
 // IMPORTANT: This assumes a terminal state, i.e. no actions
 enum Player State_winner(const struct State* state);
 

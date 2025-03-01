@@ -15,13 +15,6 @@ void State_derive(struct State* state)
     }
 }
 
-void State_copy(const struct State* src, struct State* state, struct TileState* tile_state)
-{
-    *state = *src;
-    *tile_state = *src->tile_state;
-    state->tile_state = tile_state;
-}
-
 unsigned int State_compare(const struct State* s1, const struct State* s2)
 {
     // .turn

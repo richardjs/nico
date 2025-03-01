@@ -25,7 +25,6 @@ float State_simulate(struct State* state,
 
     int depth = 0;
     while (actionc) {
-        fprintf(stderr, "%d\n", actionc);
         struct Action* action = &actions[rand() % actionc];
 
 #ifdef WATCH_SIMS

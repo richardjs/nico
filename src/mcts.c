@@ -89,8 +89,15 @@ void Node_free(struct Node* node)
  */
 float iterate(struct Node* root, struct State* state)
 {
+    struct Action actions[MAX_ACTIONS];
+    int actionc = State_actions(state, actions);
+
+    if (!root->expanded) {
+        Node_expand(root, state, actionc);
+    }
+
     // Terminal state
-    if (root->children == 0) {
+    if (root->children_count == 0) {
         root->visits++;
 
         enum Player winner = State_winner(state);
@@ -107,13 +114,6 @@ float iterate(struct Node* root, struct State* state)
 
         root->value += value;
         return value;
-    }
-
-    struct Action actions[MAX_ACTIONS];
-    int actionc = State_actions(state, actions);
-
-    if (!root->expanded) {
-        Node_expand(root, state, actionc);
     }
 
     if (root->visits == 0) {
@@ -166,7 +166,6 @@ void mcts(const struct State* state,
     struct Action actions[MAX_ACTIONS];
     int actionc = State_actions(state, actions);
 
-    // TODO
     if (actionc == 0) {
         fprintf(stderr, "Can't run MCTS on state with no actions\n");
         return;

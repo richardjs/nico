@@ -4,9 +4,11 @@
 #include <unistd.h>
 
 #include "errorcodes.h"
+#include "mcts.h"
 #include "state.h"
 #include "stateio.h"
 #include "stateutil.h"
+#include "think.h"
 #include "tile.h"
 
 #define VERSION "v.1a"
@@ -17,6 +19,7 @@ enum Command {
     NORMALIZE,
     LIST_ACTIONS,
     WINNER,
+    THINK,
     RANDOM,
     ACT
 };
@@ -37,9 +40,14 @@ int main(int argc, char* argv[])
 
     enum Command command = NONE;
 
+    struct MCTSOptions options;
+    MCTSOptions_default(&options);
+
+    int workers = 1;
+
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vIPnlWra:")) != -1) {
+    while ((opt = getopt(argc, argv, "vIPnlWtra:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -61,6 +69,10 @@ int main(int argc, char* argv[])
 
         case 'l':
             command = LIST_ACTIONS;
+            break;
+
+        case 't':
+            command = THINK;
             break;
 
         case 'W':
@@ -209,7 +221,22 @@ int main(int argc, char* argv[])
             State_to_string(&state, state_string);
             fprintf(stderr, "next:\t%s\n", state_string);
             return 0;
+
+        case THINK:
+            break;
         }
+
+        struct MCTSResults results;
+        think(&state, &results, &options, workers);
+
+        const struct Action* selected_action;
+        if (results.presearch_action) {
+            selected_action = results.presearch_action;
+        } else {
+            selected_action = &actions[results.actioni];
+        }
+
+        Action_print(selected_action, stdout);
 
         return 0;
     }

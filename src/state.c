@@ -331,3 +331,10 @@ enum Player State_winner(const struct State* state)
 
     return DRAW;
 }
+
+void State_copy(const struct State* src, struct State* state, struct TileState* tile_state)
+{
+    *state = *src;
+    *tile_state = *src->tile_state;
+    state->tile_state = tile_state;
+}
