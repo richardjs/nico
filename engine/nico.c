@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
 
     int opt;
     struct Action action;
-    while ((opt = getopt(argc, argv, "vIPnlWtra:")) != -1) {
+    while ((opt = getopt(argc, argv, "viwIPnlWtra:")) != -1) {
         switch (opt) {
         case 'v':
             return 0;
@@ -73,6 +73,14 @@ int main(int argc, char* argv[])
 
         case 't':
             command = THINK;
+            break;
+
+        case 'i':
+            options.iterations = atoi(optarg);
+            break;
+
+        case 'w':
+            workers = atoi(optarg);
             break;
 
         case 'W':
@@ -236,7 +244,17 @@ int main(int argc, char* argv[])
             selected_action = &actions[results.actioni];
         }
 
-        Action_print(selected_action, stdout);
+        // TODO clean this up (as well as above)
+        if (selected_action->count != 0) {
+            Action_print(selected_action, stdout);
+        } else { 
+            struct Tile tile = { .origin = selected_action->start, .direction = selected_action->end.q };
+            struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
+            Tile_permutations(&tile, permutations);
+            char tile_string[ACTION_STRING_SIZE];
+            tile_coords_to_string(&permutations[0][0], tile_string);
+            printf("%s\n", tile_string);
+        }
 
         return 0;
     }
