@@ -132,7 +132,7 @@ def main():
 
     parser.add_argument("state", nargs="?", default="")
 
-    parser.add_argument("-a", "--action")
+    parser.add_argument("-a", "--act")
     parser.add_argument("-i", "--iterations", type=int)
     parser.add_argument("-w", "--workers", type=int)
 
@@ -173,8 +173,8 @@ def main():
         state = State(args.state)
         state.normalize()
 
-    if args.action:
-        action = Action(args.action)
+    if args.act:
+        action = Action(args.act)
         action.translate(state.offset)
         invocation += ["-a", str(action)]
 
@@ -202,7 +202,7 @@ def main():
         action.translate(state.inverse_offset)
         print(str(action))
 
-    elif args.action:
+    elif args.act:
         after_state = State(stdout.strip())
         after_state.translate(state.inverse_offset)
         print(str(after_state))
