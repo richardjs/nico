@@ -256,6 +256,9 @@ int main(int argc, char* argv[])
             printf("%s\n", tile_string);
         }
 
+        State_act(&state, selected_action);
+        State_print(&state, stderr);
+
         return 0;
     }
 }
