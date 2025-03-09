@@ -36,7 +36,7 @@ class State:
         q, r = self.offset
         return -q, -r
 
-    def __translate(self, vector):
+    def translate(self, vector):
         if not self.tiles:
             return
 
@@ -48,7 +48,7 @@ class State:
         self.offset = q + tq, r + tr
 
     def denormalize(self):
-        self.__translate(self.inverse_offsetoffset)
+        self.translate(self.inverse_offsetoffset)
 
     def normalize(self):
         if not self.tiles:
@@ -56,7 +56,7 @@ class State:
 
         min_q = min([tile[0] for tile in self.tiles])
         min_r = min([tile[1] for tile in self.tiles])
-        self.__translate((-min_q, -min_r))
+        self.translate((-min_q, -min_r))
 
     def __str__(self):
         s = ""
@@ -167,7 +167,7 @@ def main():
         invocation.append("-W")
 
     if args.iterations:
-        invocation.append("-i", args.iterations)
+        invocation += ["-i", args.iterations]
 
     if args.state:
         state = State(args.state)
@@ -176,7 +176,7 @@ def main():
     if args.action:
         action = Action(args.action)
         action.translate(state.offset)
-        invocation.append(str(action))
+        invocation += ["-a", str(action)]
 
     if args.state:
         invocation.append(str(state))
@@ -191,16 +191,21 @@ def main():
     if args.initial:
         sys.stdout.write(stdout)
 
-    elif args.think or args.random:
-        action = Action(stdout.strip())
-        action.translate(state.inverse_offset)
-        print(str(action))
-
     elif args.list_actions:
         for line in stdout.split():
             action = Action(line)
             action.translate(state.inverse_offset)
             print(str(action))
+
+    elif args.think or args.random:
+        action = Action(stdout.strip())
+        action.translate(state.inverse_offset)
+        print(str(action))
+
+    elif args.action:
+        after_state = State(stdout.strip())
+        after_state.translate(state.inverse_offset)
+        print(str(after_state))
 
 
 if __name__ == "__main__":
