@@ -188,7 +188,10 @@ def main():
     stdout = p.stdout.decode("utf-8")
     sys.stderr.write(f"wrapped stdout: {stdout}\n")
 
-    if args.think or args.random:
+    if args.initial:
+        sys.stdout.write(stdout)
+
+    elif args.think or args.random:
         action = Action(stdout.strip())
         action.translate(state.inverse_offset)
         print(str(action))
