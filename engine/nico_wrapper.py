@@ -130,7 +130,7 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("state")
+    parser.add_argument("state", nargs="?", default="")
 
     parser.add_argument("-a", "--action")
     parser.add_argument("-i", "--iterations", type=int)
@@ -169,15 +169,17 @@ def main():
     if args.iterations:
         invocation.append("-i", args.iterations)
 
-    state = State(args.state)
-    state.normalize()
+    if args.state:
+        state = State(args.state)
+        state.normalize()
 
     if args.action:
         action = Action(args.action)
         action.translate(state.offset)
         invocation.append(str(action))
 
-    invocation.append(str(state))
+    if args.state:
+        invocation.append(str(state))
 
     sys.stderr.write(f"wrapped invocation: {invocation}\n")
     sys.stderr.flush()
