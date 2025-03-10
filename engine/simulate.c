@@ -24,8 +24,19 @@ float State_simulate(struct State* state,
     int actionc = State_actions(state, actions);
 
     int depth = 0;
-    while (actionc) {
+    bool other_player_passed = false;
+    while (1) {
         struct Action* action = &actions[rand() % actionc];
+
+        if (actionc == 1 && action->count == PASS_ACTION) {
+            // Terminal statea
+            if (other_player_passed) {
+                break;
+            }
+            other_player_passed = true;
+        } else {
+            other_player_passed = true;
+        }
 
 #ifdef WATCH_SIMS
         Action_print(action, stderr);

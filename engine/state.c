@@ -226,6 +226,10 @@ int State_actions(const struct State* state, struct Action actions[])
         }
     }
 
+    if (c == 0) {
+        actions[c++].count = PASS_ACTION;
+    }
+
     return c;
 }
 
@@ -257,7 +261,7 @@ void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8
 void State_act(struct State* state, const struct Action* action)
 {
     // Skip the turn, e.g. when player has no actions
-    if (action == NULL) {
+    if (action->count == PASS_ACTION) {
         goto next_turn;
     }
 

@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
             return 0;
 
         case LIST_ACTIONS:
-            if (actionc == 0) {
+            if (actionc == 1 && actions[0].count == PASS_ACTION) {
                 if (State_terminal(&state)) {
                     puts("terminal state");
                 } else {
@@ -139,6 +139,11 @@ int main(int argc, char* argv[])
             }
 
             for (int i = 0; i < actionc; i++) {
+                // Don't output pass actions
+                if (actions[i].count == PASS_ACTION) {
+                    continue;
+                }
+
                 // If the action isn't a tile place, print it normally
                 if (actions[i].count != 0) {
                     Action_print(&actions[i], stdout);
@@ -205,9 +210,9 @@ int main(int argc, char* argv[])
             State_act(&state, &action);
 
             // Check if we need to skip turns
-            if (State_actions(&state, actions) == 0) {
+            if (State_actions(&state, actions) == 1 && actions[0].count == PASS_ACTION) {
                 fprintf(stderr, "Skipping turn for %c\n", state.turn == P1 ? P1_CHAR : P2_CHAR);
-                State_act(&state, NULL);
+                State_act(&state, &actions[0]);
             }
 
             State_normalize(&state);
@@ -247,7 +252,7 @@ int main(int argc, char* argv[])
         // TODO clean this up (as well as above)
         if (selected_action->count != 0) {
             Action_print(selected_action, stdout);
-        } else { 
+        } else {
             struct Tile tile = { .origin = selected_action->start, .direction = selected_action->end.q };
             struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
             Tile_permutations(&tile, permutations);

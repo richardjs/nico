@@ -19,6 +19,8 @@
 // How many hexes can a hole in the board contain; used in perimeter detection
 #define MAX_HOLE_SIZE 24
 
+#define PASS_ACTION (INITIAL_STACK + 1)
+
 enum Player {
     P1 = 0,
     P2,
@@ -38,6 +40,8 @@ struct Action {
     // In initial stack place actions:
     //   - start is the hex the stack is placed on
     //   - count is INITIAL_STACK (16)
+
+    // If count == PASS_ACTION, player has no moves
 };
 
 struct TileState {

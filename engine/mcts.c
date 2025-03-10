@@ -7,6 +7,7 @@
 #include "mcts.h"
 #include "simulate.h"
 #include "state.h"
+#include "stateutil.h"
 
 // store these globally so we don't have to pass them around
 static struct MCTSOptions options;
@@ -97,7 +98,9 @@ float iterate(struct Node* root, struct State* state)
     }
 
     // Terminal state
-    if (root->children_count == 0) {
+    // TODO we calculatae actions twice here
+    // using a stateutil function for temporary fix
+    if (root->children_count == 1 && State_terminal(state)) {
         root->visits++;
 
         enum Player winner = State_winner(state);

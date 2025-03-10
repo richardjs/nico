@@ -414,6 +414,12 @@ void Action_to_string(const struct Action* action, char string[])
             action->start.q,
             action->start.r);
     }
+    // Pass
+    else if (action->count == PASS_ACTION) {
+        snprintf(string, ACTION_STRING_SIZE,
+            "%s",
+            "pass");
+    }
     // Stack movement
     else {
         snprintf(string, ACTION_STRING_SIZE,

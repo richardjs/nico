@@ -65,8 +65,6 @@ unsigned int State_compare(const struct State* s1, const struct State* s2)
             return 9;
         }
         if (s1->tile_hexes[i].r != s2->tile_hexes[i].r) {
-            printf("%d %d\n", s1->tile_hexes[i].r, s2->tile_hexes[i].r);
-            printf("%d %d\n", i, s1->tile_hexc);
             return 10;
         }
     }
@@ -101,14 +99,14 @@ enum Player State_stack_player(const struct State* state, const struct Coords* c
 bool State_terminal(const struct State* s)
 {
     struct Action actions[MAX_ACTIONS];
-    if (State_actions(s, actions) != 0) {
+    if (State_actions(s, actions) != 1 && actions[0].count != PASS_ACTION) {
         return false;
     }
 
     struct State state;
     struct TileState tile_state;
     State_copy(s, &state, &tile_state);
-    State_act(&state, NULL);
+    State_act(&state, &actions[0]);
 
-    return State_actions(&state, actions) == 0;
+    return State_actions(&state, actions) == 1 && actions[0].count == PASS_ACTION;
 }

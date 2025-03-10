@@ -1,3 +1,4 @@
+#include "mcts.h"
 #include "state.h"
 #include "stateio.h"
 #include "stateutil.h"
@@ -41,6 +42,8 @@ int main()
     int actionc;
 
     char state_string[STATE_STRING_SIZE];
+
+    struct MCTSResults results;
 
     // Translate around and back to the same place
     {
@@ -359,6 +362,25 @@ int main()
 
         if (State_winner(&state) != P1) {
             puts("incorrect winner for state");
+            State_print(&state, stdout);
+        }
+    }
+
+    // MCTS bug
+    {
+        char test_state_string[] = "2,7|3,6|3,7|4,6|4,5|3,5|4,4|5,4|6,3|6,2|7,2|7,1|5,5|6,4|6,5|5,6|6,1|6,0|5,1|5,2|4,3|3,4|3,3|4,2|1,8|1,7|0,8|0,9|2,5|1,6|1,5|2,4|4,6h1|1,5t1|3,7h13|6,5t14|3,6h2|1,8t1|h";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        State_actions(&state, actions);
+
+        mcts(&state, &results, NULL);
+        action = actions[results.actioni];
+
+        if (action.start.q == 3 && action.start.r == 6 && action.end.q == 2 && action.end.r == 7) {
+            puts("This is definitely not the move to do here!");
+            State_print(&state, stdout);
+            Action_print(&action, stdout);
+            State_act(&state, &action);
             State_print(&state, stdout);
         }
     }
