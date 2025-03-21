@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
             return 0;
 
         case WINNER:
-            if (actionc != 0) {
+            if (actions[0].count != PASS_ACTION) {
                 puts("none");
                 return 0;
             }
