@@ -128,22 +128,23 @@ class Action:
 def main():
     sys.stderr.write(" ".join(sys.argv) + "\n")
 
-    parser = argparse.ArgumentParser()
+    # Use a different prefix to avoid confusion with negative numbers
+    parser = argparse.ArgumentParser(prefix_chars="/")
 
     parser.add_argument("state", nargs="?", default="")
 
-    parser.add_argument("-a", "--act")
-    parser.add_argument("-i", "--iterations", type=int)
-    parser.add_argument("-w", "--workers", type=int)
+    parser.add_argument("/a", "//act")
+    parser.add_argument("/i", "//iterations", type=int)
+    parser.add_argument("/w", "//workers", type=int)
 
-    parser.add_argument("-I", "--initial", action="store_true")
-    parser.add_argument("-l", "--list-actions", action="store_true")
-    parser.add_argument("-n", "--normalize", action="store_true")
-    parser.add_argument("-P", "--print", action="store_true")
-    parser.add_argument("-r", "--random", action="store_true")
-    parser.add_argument("-t", "--think", action="store_true")
-    parser.add_argument("-v", "--version", action="store_true")
-    parser.add_argument("-W", "--winner", action="store_true")
+    parser.add_argument("/I", "//initial", action="store_true")
+    parser.add_argument("/l", "//list-actions", action="store_true")
+    parser.add_argument("/n", "//normalize", action="store_true")
+    parser.add_argument("/P", "//print", action="store_true")
+    parser.add_argument("/r", "//random", action="store_true")
+    parser.add_argument("/t", "//think", action="store_true")
+    parser.add_argument("/v", "//version", action="store_true")
+    parser.add_argument("/W", "//winner", action="store_true")
 
     args = parser.parse_args()
 
@@ -188,14 +189,17 @@ def main():
     stdout = p.stdout.decode("utf-8")
     sys.stderr.write(f"wrapped stdout: {stdout}\n")
 
-    if args.initial:
+    if args.initial or args.winner:
         sys.stdout.write(stdout)
 
     elif args.list_actions:
-        for line in stdout.split():
-            action = Action(line)
-            action.translate(state.inverse_offset)
-            print(str(action))
+        if stdout.strip() == "terminal state":
+            sys.stdout.write(stdout)
+        else:
+            for line in stdout.split():
+                action = Action(line)
+                action.translate(state.inverse_offset)
+                print(str(action))
 
     elif args.think or args.random:
         action = Action(stdout.strip())
