@@ -224,8 +224,16 @@ int main(int argc, char* argv[])
         case RANDOM:
             struct Action* action = &actions[rand() % actionc];
 
-            Action_to_string(action, action_string);
-            printf("%s\n", action_string);
+            if (action->count != 0) {
+                Action_print(action, stdout);
+            } else {
+                struct Tile tile = { .origin = action->start, .direction = action->end.q };
+                struct Coords permutations[TILE_PERMUTATIONS][TILE_SIZE];
+                Tile_permutations(&tile, permutations);
+                char tile_string[ACTION_STRING_SIZE];
+                tile_coords_to_string(&permutations[0][0], tile_string);
+                printf("%s\n", tile_string);
+            }
 
             State_act(&state, action);
             State_normalize(&state);
