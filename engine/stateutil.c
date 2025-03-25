@@ -2,6 +2,10 @@
 #include "coords.h"
 #include "state.h"
 
+uint8_t region_flood_fill(
+    const struct State* state, const struct Coords* start,
+    struct Coords hexes[MAX_TILE_HEXES], uint8_t available[NUM_PLAYERS]);
+
 void State_derive(struct State* state)
 {
     state->tile_hexc = 0;
@@ -11,6 +15,43 @@ void State_derive(struct State* state)
                 state->tile_hexes[state->tile_hexc].q = q;
                 state->tile_hexes[state->tile_hexc++].r = r;
             }
+        }
+    }
+
+    state->regionc = 0;
+
+    // Set all hexes to MAX_REGIONS + 1 so we can track where we've calculated
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            state->regions[q][r] = MAX_REGIONS + 1;
+        }
+    }
+
+    struct Coords start;
+    struct Coords hexes[MAX_TILE_HEXES];
+    uint8_t available[NUM_PLAYERS];
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            if (!state->tile_state->tiles[q][r]) {
+                continue;
+            }
+            if (state->stacks[q][r]) {
+                continue;
+            }
+            if (state->regions[q][r] != MAX_REGIONS + 1) {
+                continue;
+            }
+
+            start.q = q;
+            start.r = r;
+            int hexc = region_flood_fill(state, &start, hexes, available);
+
+            uint8_t region = state->regionc++;
+            for (int i = 0; i < hexc; i++) {
+                state->regions[hexes[i].q][hexes[i].r] = region;
+            }
+            state->region_available[region][P1] = available[P1];
+            state->region_available[region][P2] = available[P2];
         }
     }
 }

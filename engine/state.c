@@ -2,6 +2,59 @@
 #include "tile.h"
 #include <string.h>
 
+// TODO either move this into state.c or find a more optimized way of doing it here
+enum Player State_stack_player(const struct State* state, const struct Coords* coords);
+
+uint8_t region_flood_fill(
+    const struct State* state, const struct Coords* start,
+    struct Coords hexes[MAX_TILE_HEXES], uint8_t available[NUM_PLAYERS])
+{
+    available[P1] = 0;
+    available[P2] = 0;
+
+    struct Coords stack[MAX_TILE_HEXES];
+    int stackc = 0;
+    stack[stackc++] = *start;
+
+    bool crumbs[GRID_SIZE][GRID_SIZE] = { false };
+    crumbs[start->q][start->r] = true;
+
+    bool available_crumbs[GRID_SIZE][GRID_SIZE] = { false };
+
+    int hexc = 0;
+    struct Coords walk;
+
+    while (stackc > 0) {
+        struct Coords pos = stack[--stackc];
+        hexes[hexc++] = pos;
+
+        for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+            walk = pos;
+            Coords_move(&walk, d);
+            if (crumbs[walk.q][walk.r]) {
+                continue;
+            }
+            if (!state->tile_state->tiles[walk.q][walk.r]) {
+                continue;
+            }
+
+            uint8_t walk_stacks = state->stacks[walk.q][walk.r];
+            if (walk_stacks) {
+                if (walk_stacks > 1 && !available_crumbs[walk.q][walk.r]) {
+                    available[State_stack_player(state, &walk)] += walk_stacks - 1;
+                    available_crumbs[walk.q][walk.r] = true;
+                }
+                continue;
+            }
+
+            stack[stackc++] = walk;
+            crumbs[walk.q][walk.r] = true;
+        }
+    }
+
+    return hexc;
+}
+
 void State_new(struct State* state, struct TileState* tile_state)
 {
     memset(state, 0, sizeof(struct State));
@@ -12,6 +65,8 @@ void State_new(struct State* state, struct TileState* tile_state)
     for (int i = 0; i < NUM_PLAYERS; i++) {
         state->remaining_tiles[i] = PLAYER_TILES;
     }
+
+    // Regions are calculated in stack places (and are meaningless during tile place phase)
 }
 
 int State_place_actions(const struct State* state, struct Action actions[])
@@ -250,12 +305,14 @@ void State_place_act(struct State* state, const struct Action* action)
     state->remaining_tiles[state->turn]--;
 }
 
-// Helper function to reate a new stack of a given size at a given hex,
-// while also remembering to update player_stacks
+// Create a new stack of a given size at a given hex,
 void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8_t count)
 {
     state->stacks[coords->q][coords->r] = count;
+
     state->player_stacks[state->turn][state->player_stackc[state->turn]++] = *coords;
+
+    // TODO update regions
 }
 
 void State_act(struct State* state, const struct Action* action)

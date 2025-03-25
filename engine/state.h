@@ -10,7 +10,6 @@
 #define PLAYER_TILES 4
 
 #define MAX_TILE_HEXES (NUM_PLAYERS * PLAYER_TILES * 4)
-#define MAX_PLACE_HEXES
 
 #define INITIAL_STACK 16
 
@@ -20,6 +19,10 @@
 #define MAX_HOLE_SIZE 24
 
 #define PASS_ACTION (INITIAL_STACK + 1)
+
+// Regions are discrete empty areas of the board, divided by stacks
+// TODO We can probably prove a lower number than this
+#define MAX_REGIONS 16
 
 enum Player {
     P1 = 0,
@@ -53,6 +56,7 @@ struct State {
     // (since it never changes once the place phase is over)
 
     // Core information
+
     struct TileState* tile_state;
     uint8_t stacks[GRID_SIZE][GRID_SIZE];
 
@@ -64,8 +68,16 @@ struct State {
     enum Player turn;
 
     // Derived information
+
+    // List of hexes that have a tile
     struct Coords tile_hexes[MAX_TILE_HEXES];
     uint8_t tile_hexc;
+
+    uint8_t regions[GRID_SIZE][GRID_SIZE];
+    uint8_t region_size[MAX_REGIONS];
+    // Number each player has available to move into the region
+    uint8_t region_available[MAX_REGIONS][NUM_PLAYERS];
+    uint8_t regionc;
 };
 
 void State_new(struct State* state, struct TileState* tile_state);

@@ -385,6 +385,17 @@ int main()
         }
     }
 
+    // Regions
+    {
+        char test_state_string[] = "3,2|4,2|3,3|2,3|4,0|5,0|4,1|3,1|2,5|3,4|3,5|2,6|6,1|7,1|6,2|5,2|7,-1|8,-1|7,0|6,0|6,3|7,2|7,3|6,4|8,4|8,3|9,3|9,4|11,3|12,3|11,4|10,4|7,3h16|3,3t16|t";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        if (state.regionc != 3) {
+            printf("incorrect number of regions: %d\n", state.regionc);
+            State_print(&state, stdout);
+        }
+    }
+
     puts("Done!");
 
     return 0;
