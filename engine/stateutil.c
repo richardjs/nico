@@ -86,26 +86,82 @@ unsigned int State_compare(const struct State* s1, const struct State* s2)
             return 5;
         }
         // .player_stacks
+        // These can be in arbitrary order, so we need to look for a s2 match for each one
         for (int i = 0; i < s1->player_stackc[p]; i++) {
-            if (s1->player_stacks[p][i].q != s2->player_stacks[p][i].q) {
-                return 6;
+            bool found_match = false;
+            for (int j = 0; j < s1->player_stackc[p]; j++) {
+                if (s1->player_stacks[p][i].q == s2->player_stacks[p][j].q
+                    && s1->player_stacks[p][i].r == s2->player_stacks[p][j].r) {
+                    found_match = true;
+                    break;
+                }
             }
-            if (s1->player_stacks[p][i].r != s2->player_stacks[p][i].r) {
-                return 7;
+            if (!found_match) {
+                return 6;
             }
         }
     }
 
     // .tile_hexc
     if (s1->tile_hexc != s2->tile_hexc) {
-        return 8;
+        return 7;
     }
     // .tile_hexes
+    // These can be in arbitrary order, so we need to look for a s2 match for each one
     for (int i = 0; i < s1->tile_hexc; i++) {
-        if (s1->tile_hexes[i].q != s2->tile_hexes[i].q) {
-            return 9;
+        bool found_match = false;
+        for (int j = 0; j < s1->tile_hexc; j++) {
+            if (s1->tile_hexes[i].q == s2->tile_hexes[j].q
+                && s1->tile_hexes[i].r == s2->tile_hexes[j].r) {
+                found_match = true;
+                break;
+            }
         }
-        if (s1->tile_hexes[i].r != s2->tile_hexes[i].r) {
+        if (!found_match) {
+            return 8;
+        }
+    }
+
+    // .regionc
+    if (s1->regionc != s2->regionc) {
+        return 9;
+    }
+
+    // These can be in arbitrary order, so we need to look for a s2 match for each one
+    for (int i = 0; i < s1->regionc; i++) {
+        bool found_match = false;
+        for (int j = 0; j < s1->regionc; j++) {
+            // .region_size
+            if (s1->region_size[i] != s2->region_size[j]) {
+                continue;
+            }
+            // .region_available
+            if (s1->region_available[i][P1] != s2->region_available[i][P1]
+                && s1->region_available[i][P2] != s2->region_available[i][P2]) {
+                continue;
+            }
+
+            // .region
+            bool same_hexes = true;
+            for (int q = 0; q < GRID_SIZE; q++) {
+                for (int r = 0; r < GRID_SIZE; r++) {
+                    if (s1->regions[q][r] == i) {
+                        if (s2->regions[q][r] != j) {
+                            same_hexes = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (!same_hexes) {
+                continue;
+            }
+
+            found_match = true;
+            break;
+        }
+
+        if (!found_match) {
             return 10;
         }
     }

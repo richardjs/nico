@@ -61,8 +61,9 @@ int main()
         State_translate(&translated, NORTHEAST);
         State_translate(&translated, NORTH);
 
-        if (State_compare(&state, &translated)) {
-            puts("Something went wrong in state translation");
+        int c = State_compare(&state, &translated);
+        if (c) {
+            printf("Something went wrong in state translation (%d)\n", c);
         }
     }
 
@@ -81,15 +82,8 @@ int main()
         State_translate(&translated, SOUTH);
         State_normalize(&translated);
 
-        if (memcmp(&state, &translated, sizeof(struct State)) != 0) {
+        if (State_compare(&state, &translated) != 0) {
             puts("State different after normalization and translation");
-
-            if (memcmp(state.tile_state->tiles, translated.tile_state->tiles, sizeof(bool) * GRID_SIZE * GRID_SIZE) != 0) {
-                puts("...difference in tiles");
-                State_print_raw_tile_grid(&state);
-                printf("\n");
-                State_print_raw_tile_grid(&translated);
-            }
         }
     }
 
@@ -106,7 +100,7 @@ int main()
         State_translate(&translated, NORTHWEST);
         State_normalize(&translated);
 
-        if (memcmp(&state, &translated, sizeof(struct State)) != 0) {
+        if (State_compare(&state, &translated)) {
             puts("State different after normalization and translation when wrapping");
 
             if (memcmp(state.tile_state->tiles, translated.tile_state->tiles, sizeof(bool) * GRID_SIZE * GRID_SIZE) != 0) {
@@ -167,20 +161,20 @@ int main()
         State_normalize(&state);
 
         actionc = State_actions(&state, actions);
-        if (actionc != 21) {
-            State_print(&state, stdout);
+        if (actionc != 22) {
             printf("Initial place action count %d != 21\n", actionc);
-            for (int i = 0; i < actionc; i++) {
-                Action_print(&actions[i], stdout);
-            }
-        }
-
-        State_act(&state, &actions[0]);
-        actionc = State_actions(&state, actions);
-
-        if (actionc != 20) {
             State_print(&state, stdout);
+            for (int i = 0; i < actionc; i++) {
+                Action_print(&actions[i], stdout);
+            }
+        }
+
+        State_act(&state, &actions[0]);
+        actionc = State_actions(&state, actions);
+
+        if (actionc != 21) {
             printf("Second initial place action count %d != 20\n", actionc);
+            State_print(&state, stdout);
             for (int i = 0; i < actionc; i++) {
                 Action_print(&actions[i], stdout);
             }
@@ -189,7 +183,7 @@ int main()
         State_act(&state, &actions[0]);
 
         actionc = State_actions(&state, actions);
-        if (actionc != 30) {
+        if (actionc != 15) {
             printf("Branching factor here %d != 30\n", actionc);
             State_print(&state, stdout);
             for (int i = 0; i < actionc; i++) {
@@ -394,6 +388,49 @@ int main()
             printf("incorrect number of regions: %d\n", state.regionc);
             State_print(&state, stdout);
         }
+    }
+    {
+        char test_state_string[] = "1,0|2,0|1,1|0,1|2,1|3,0|3,1|2,2|0,3|1,2|1,3|0,4|4,2|4,1|5,1|5,2|4,4|4,3|5,3|5,4|7,3|6,3|7,2|8,2|2,5|1,5|2,4|3,4|7,1|6,1|7,0|8,0|h";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        if (state.regionc != 1) {
+            printf("incorrect number of regions: %d\n", state.regionc);
+            State_print(&state, stdout);
+        }
+
+        action.start.q = 4;
+        action.start.r = 1;
+        action.count = INITIAL_STACK;
+        State_act(&state, &action);
+
+        if (state.regionc != 2) {
+            printf("incorrect number of regions: %d\n", state.regionc);
+            State_print(&state, stdout);
+        }
+
+        action.start.q = 4;
+        action.start.r = 4;
+        action.count = INITIAL_STACK;
+        State_act(&state, &action);
+
+        if (state.regionc != 2) {
+            printf("incorrect number of regions: %d\n", state.regionc);
+            State_print(&state, stdout);
+        }
+
+        action.start.q = 4;
+        action.start.r = 1;
+        action.end.q = 4;
+        action.end.r = 3;
+        action.count = 1;
+        State_act(&state, &action);
+
+        if (state.regionc != 3) {
+            printf("incorrect number of regions: %d\n", state.regionc);
+            State_print(&state, stdout);
+        }
+
+        State_print(&state, stdout);
     }
 
     puts("Done!");

@@ -4,6 +4,7 @@
 
 // TODO either move this into state.c or find a more optimized way of doing it here
 enum Player State_stack_player(const struct State* state, const struct Coords* coords);
+void State_derive(struct State* state);
 
 uint8_t region_flood_fill(
     const struct State* state, const struct Coords* start,
@@ -305,6 +306,38 @@ void State_place_act(struct State* state, const struct Action* action)
     state->remaining_tiles[state->turn]--;
 }
 
+void State_update_regions_from_coords(struct State* state, const struct Coords* coords)
+{
+    struct Coords walk;
+    struct Coords hexes[MAX_TILE_HEXES];
+    int hexc;
+    uint8_t available[NUM_PLAYERS];
+
+    bool crumbs[GRID_SIZE][GRID_SIZE] = { false };
+
+    for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+        walk = *coords;
+        Coords_move(&walk, d);
+
+        if (crumbs[walk.q][walk.r]) {
+            continue;
+        }
+
+        uint8_t previous_region = state->regions[walk.q][walk.r];
+
+        hexc = region_flood_fill(state, &walk, hexes, available);
+
+        // If the region has changed size, then it's been
+        if (hexc != state->region_size[previous_region]) {
+            for (int i = 0; i < hexc; i++) {
+                struct Coords* c = &hexes[i];
+                crumbs[c->q][c->r] = true;
+                // TODO
+            }
+        }
+    }
+}
+
 // Create a new stack of a given size at a given hex,
 void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8_t count)
 {
@@ -312,7 +345,7 @@ void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8
 
     state->player_stacks[state->turn][state->player_stackc[state->turn]++] = *coords;
 
-    // TODO update regions
+    State_update_regions_from_coords(state, coords);
 }
 
 void State_act(struct State* state, const struct Action* action)
@@ -340,6 +373,9 @@ void State_act(struct State* state, const struct Action* action)
 
 next_turn:
     state->turn = !state->turn;
+
+    // TODO temp until we do this more efficiently
+    State_derive(state);
 }
 
 enum Player State_winner(const struct State* state)
