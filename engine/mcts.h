@@ -37,6 +37,7 @@ struct MCTSStats {
     uint32_t depth_outs;
     uint64_t duration;
     uint32_t change_iterations;
+    uint64_t early_terminations;
 };
 
 struct MCTSResults {

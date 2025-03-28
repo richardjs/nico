@@ -13,6 +13,11 @@
 
 enum Player State_early_winner(const struct State* state)
 {
+    // Don't check in the placement phases
+    if (state->player_stackc[state->turn] == 0) {
+        return DRAW;
+    }
+
     uint8_t p1_score = state->player_stackc[P1];
     uint8_t p2_score = state->player_stackc[P2];
 
@@ -50,11 +55,6 @@ enum Player State_early_winner(const struct State* state)
     return DRAW;
 }
 
-/**
- * simulates play (in place) on a state, stopping at game end or
- * MAX_SIM_DEPTH, and returns 1.0 if the initial turn won, -1.0 if it
- * lost, and 0.0 on a draw or depth out
- */
 float State_simulate(struct State* state,
     const struct MCTSOptions* options, struct MCTSStats* stats)
 {
@@ -98,6 +98,7 @@ float State_simulate(struct State* state,
         enum Player early_winner = State_early_winner(state);
         if (early_winner != DRAW) {
             winner = early_winner;
+            stats->early_terminations++;
             goto have_winner;
         }
 

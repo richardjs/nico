@@ -135,6 +135,7 @@ void think(
     fprintf(stderr, "actions:\t%ld\n", actionc);
     fprintf(stderr, "action iters:\t%d\n", results->nodes[results->actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results->stats.mean_sim_depth);
+    fprintf(stderr, "early terms:\t%d\n", results->stats.early_terminations);
     fprintf(
         stderr, "tree size:\t%ld MiB\n", results->stats.tree_bytes / 1024 / 1024);
 
