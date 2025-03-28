@@ -52,9 +52,6 @@ struct TileState {
 };
 
 struct State {
-    // TODO Break out separate TileState that can be shared among states
-    // (since it never changes once the place phase is over)
-
     // Core information
 
     struct TileState* tile_state;

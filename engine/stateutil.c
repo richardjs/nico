@@ -47,11 +47,12 @@ void State_derive(struct State* state)
             int hexc = region_flood_fill(state, &start, hexes, available);
 
             uint8_t region = state->regionc++;
+            state->region_size[region] = hexc;
             for (int i = 0; i < hexc; i++) {
                 state->regions[hexes[i].q][hexes[i].r] = region;
             }
-            state->region_available[region][P1] = available[P1];
-            state->region_available[region][P2] = available[P2];
+            state->region_available[region][P1] = available[P1] < hexc ? available[P1] : hexc;
+            state->region_available[region][P2] = available[P2] < hexc ? available[P2] : hexc;
         }
     }
 }

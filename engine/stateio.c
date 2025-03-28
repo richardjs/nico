@@ -175,8 +175,13 @@ void State_print(const struct State* s, FILE* stream)
                     fprintf(stream, "%x", stacks[x][y]);
                 }
             } else {
-                fputc(' ', stream);
-                fputc(' ', stream);
+                if (tiles[x][y]) {
+                    fputc('.', stream);
+                    fputc('.', stream);
+                } else {
+                    fputc(' ', stream);
+                    fputc(' ', stream);
+                }
             }
 
             fputc(here || ne ? '\\' : ' ', stream);
@@ -204,8 +209,13 @@ void State_print(const struct State* s, FILE* stream)
                     fprintf(stream, "%x", stacks[x + 1][y + 1]);
                 }
             } else {
-                fputc(' ', stream);
-                fputc(' ', stream);
+                if (tiles[x + 1][y + 1]) {
+                    fputc('.', stream);
+                    fputc('.', stream);
+                } else {
+                    fputc(' ', stream);
+                    fputc(' ', stream);
+                }
             }
         }
         fputc('\n', stream);

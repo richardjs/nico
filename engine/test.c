@@ -4,11 +4,14 @@
 #include "stateutil.h"
 #include "tile.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 void State_translate(struct State* state, enum Direction direction);
 void tile_coords_to_string(const struct Coords coords[], char string[]);
 int flood_fill_empty_hexes(const bool tiles[][GRID_SIZE], const struct Coords* start, bool flood[][GRID_SIZE]);
+enum Player State_early_winner(const struct State* state);
 
 void State_print_raw_tile_grid(struct State* state)
 {
@@ -33,6 +36,10 @@ void State_print_raw_stack_grid(struct State* state)
 int main()
 {
     puts("Nico tests...");
+
+    time_t seed = time(NULL);
+    srand(seed);
+
     init_coords();
 
     struct State state;
@@ -429,8 +436,29 @@ int main()
             printf("incorrect number of regions: %d\n", state.regionc);
             State_print(&state, stdout);
         }
+    }
 
-        State_print(&state, stdout);
+    // Early termination
+    {
+        char test_state_string[] = "6,1|7,1|6,2|5,2|5,1|4,1|5,0|6,0|3,4|4,3|4,4|3,5|3,6|4,5|4,6|5,5|1,8|0,8|1,7|2,7|3,7|2,8|3,8|4,7|2,3|2,4|1,4|1,3|2,2|2,1|3,1|3,2|3,4h16|3,5t16|h";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        State_early_winner(&state);
+    }
+    {
+        char test_state_string[] = "6,1|7,1|6,2|5,2|5,1|4,1|5,0|6,0|3,4|4,3|4,4|3,5|3,6|4,5|4,6|5,5|1,8|0,8|1,7|2,7|3,7|2,8|3,8|4,7|2,3|2,4|1,4|1,3|2,2|2,1|3,1|3,2|3,4h8|3,5t16|4,4h8|h";
+        State_from_string(&state, &tile_state, test_state_string);
+
+        State_early_winner(&state);
+    }
+    {
+        State_early_winner(&state);
+    }
+
+    // TODO this is a case where our current region available calculations aren't actually correct
+    {
+        char test_state_string[] = "0,8|0,9|1,5|1,6|1,7|1,8|2,4|2,5|2,7|3,3|3,4|3,5|3,6|3,7|4,2|4,3|4,4|4,5|4,6|5,1|5,2|5,4|5,5|5,6|6,0|6,1|6,2|6,3|6,4|6,5|7,1|7,2|4,6h1|3,7h3|3,6h1|7,2h1|1,7h1|2,7h7|0,8h1|1,6h1|1,5t1|6,5t4|1,8t1|5,6t5|5,4t1|4,5t2|4,2t2|t";
+        State_from_string(&state, &tile_state, test_state_string);
     }
 
     puts("Done!");
