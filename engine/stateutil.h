@@ -15,4 +15,6 @@ enum Player State_stack_player(const struct State* state, const struct Coords* c
 
 bool State_terminal(const struct State* state);
 
+void State_fill_uncontested_region_action(const struct State* state, struct Action* action);
+
 #endif

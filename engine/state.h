@@ -27,7 +27,8 @@
 enum Player {
     P1 = 0,
     P2,
-    DRAW
+    DRAW,
+    NO_WINNER
 };
 
 struct Action {
@@ -72,7 +73,8 @@ struct State {
 
     uint8_t regions[GRID_SIZE][GRID_SIZE];
     uint8_t region_size[MAX_REGIONS];
-    // Number each player has available to move into the region
+    // Number each player has available to move into the region'
+    // NOTE: Currently this only is the availability from a single stack
     uint8_t region_available[MAX_REGIONS][NUM_PLAYERS];
     uint8_t regionc;
 };

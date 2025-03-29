@@ -32,7 +32,7 @@ void State_translate(struct State* state, enum Direction direction)
     }
 
     for (int p = 0; p < NUM_PLAYERS; p++) {
-        for (int i = 0; i < state->player_stackc[i]; i++) {
+        for (int i = 0; i < state->player_stackc[p]; i++) {
             Coords_move(&state->player_stacks[p][i], direction);
         }
     }
@@ -124,7 +124,7 @@ void State_print(const struct State* s, FILE* stream)
             stacks[x][y] = state.stacks[q][r];
 
             struct Coords c = { .q = q, .r = r };
-            stack_players[x][y] = State_stack_player(&state, &c);
+            stack_players[x][y] = state.stacks[q][r] ? State_stack_player(&state, &c) : -1;
 
             if (!tiles[x][y])
                 continue;

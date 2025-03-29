@@ -81,6 +81,7 @@ void think(
         results->stats.nodes += worker_results.stats.nodes;
         results->stats.tree_bytes += worker_results.stats.tree_bytes;
         results->stats.simulations += worker_results.stats.simulations;
+        results->stats.early_terminations += worker_results.stats.early_terminations;
         results->stats.mean_sim_depth += worker_results.stats.mean_sim_depth / workers;
         results->stats.change_iterations = results->stats.change_iterations > worker_results.stats.change_iterations ? results->stats.change_iterations : worker_results.stats.change_iterations;
     }
@@ -135,6 +136,7 @@ void think(
     fprintf(stderr, "actions:\t%ld\n", actionc);
     fprintf(stderr, "action iters:\t%d\n", results->nodes[results->actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results->stats.mean_sim_depth);
+    fprintf(stderr, "simulations:\t%d\n", results->stats.simulations);
     fprintf(stderr, "early terms:\t%d\n", results->stats.early_terminations);
     fprintf(
         stderr, "tree size:\t%ld MiB\n", results->stats.tree_bytes / 1024 / 1024);

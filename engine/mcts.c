@@ -9,6 +9,9 @@
 #include "state.h"
 #include "stateutil.h"
 
+// TODO tmp
+enum Player State_early_winner(const struct State* state);
+
 // store these globally so we don't have to pass them around
 static struct MCTSOptions options;
 static struct MCTSResults* results;
@@ -98,12 +101,13 @@ float iterate(struct Node* root, struct State* state)
     }
 
     // Terminal state
-    // TODO we calculatae actions twice here
-    // using a stateutil function for temporary fix
-    if (root->children_count == 1 && State_terminal(state)) {
+    enum Player winner = State_early_winner(state);
+    if (winner != NO_WINNER) {
+        // if (root->children_count == 1 && State_terminal(state)) {
         root->visits++;
 
-        enum Player winner = State_winner(state);
+        // enum Player winner = State_winner(state);
+        enum Player winner = State_early_winner(state);
 
         float value;
         if (winner == DRAW) {

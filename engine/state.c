@@ -42,7 +42,10 @@ uint8_t region_flood_fill(
             uint8_t walk_stacks = state->stacks[walk.q][walk.r];
             if (walk_stacks) {
                 if (walk_stacks > 1 && !available_crumbs[walk.q][walk.r]) {
-                    available[State_stack_player(state, &walk)] += walk_stacks - 1;
+                    enum Player walk_player = State_stack_player(state, &walk);
+                    if ((walk_stacks - 1) > available[walk_player]) {
+                        available[walk_player] = walk_stacks - 1;
+                    }
                     available_crumbs[walk.q][walk.r] = true;
                 }
                 continue;

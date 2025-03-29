@@ -15,7 +15,7 @@ enum Player State_early_winner(const struct State* state)
 {
     // Don't check in the placement phases
     if (state->player_stackc[state->turn] == 0) {
-        return DRAW;
+        return NO_WINNER;
     }
 
     uint8_t p1_score = state->player_stackc[P1];
@@ -51,8 +51,12 @@ enum Player State_early_winner(const struct State* state)
     } else if (p2_score + p2_best_uncontested > p1_score + p1_total_available) {
         return P2;
     }
+    // TODO we can probably refine this
+    else if (p1_score + p1_best_uncontested == 16 && p2_score + p2_best_uncontested == 16) {
+        return DRAW;
+    }
 
-    return DRAW;
+    return NO_WINNER;
 }
 
 float State_simulate(struct State* state,
@@ -96,7 +100,7 @@ float State_simulate(struct State* state,
 #endif
 
         enum Player early_winner = State_early_winner(state);
-        if (early_winner != DRAW) {
+        if (early_winner != NO_WINNER) {
             winner = early_winner;
             stats->early_terminations++;
             goto have_winner;

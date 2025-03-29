@@ -1,6 +1,11 @@
 #include "stateutil.h"
 #include "coords.h"
+#include "errorcodes.h"
 #include "state.h"
+#include <stdlib.h>
+
+// TODO tmp
+#include "stateio.h"
 
 uint8_t region_flood_fill(
     const struct State* state, const struct Coords* start,
@@ -191,6 +196,7 @@ enum Player State_stack_player(const struct State* state, const struct Coords* c
     }
 
     // Error case
+    exit(ERROR_NO_STACK_PLAYER);
     return -1;
 }
 
@@ -207,4 +213,90 @@ bool State_terminal(const struct State* s)
     State_act(&state, &actions[0]);
 
     return State_actions(&state, actions) == 1 && actions[0].count == PASS_ACTION;
+}
+
+uint8_t State_best_uncontested_region(const struct State* state)
+{
+    uint8_t best_uncontested_region = 0;
+    for (int i = 0; i < state->regionc; i++) {
+        if (state->region_available[i][!state->turn] > 0) {
+            continue;
+        }
+
+        if (state->region_available[i][state->turn]
+            >= state->region_available[best_uncontested_region][state->turn]) {
+            best_uncontested_region = i;
+        }
+    }
+    return best_uncontested_region;
+}
+
+// TODO tmp
+void State_print_regions(struct State* state);
+
+int region_fill_dfs(const struct State* state)
+{
+    struct Action actions[MAX_ACTIONS];
+    int actionc = State_actions(state, actions);
+
+    if (actions[0].count == PASS_ACTION) {
+        for (int q = 0; q < GRID_SIZE; q++) {
+            for (int r = 0; r < GRID_SIZE; r++) {
+                if (!state->stacks[q][r]) {
+                    return -1;
+                }
+            }
+        }
+        State_print(state, stdout);
+        return 0;
+    }
+
+    for (int i = actionc - 1; i >= 0; i--) {
+        struct State after;
+        struct TileState after_tiles;
+        State_copy(state, &after, &after_tiles);
+        State_act(&after, &actions[i]);
+
+        // Keep it the original player's turn
+        after.turn = state->turn;
+
+        if (region_fill_dfs(&after) >= 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void State_fill_uncontested_region_action(const struct State* s, struct Action* action)
+{
+    struct State state;
+    struct TileState tile_state;
+    State_copy(s, &state, &tile_state);
+
+    uint8_t region = State_best_uncontested_region(&state);
+
+    // Remove all hexes except those in the region (and those under stacks)
+    for (int q = 0; q < GRID_SIZE; q++) {
+        for (int r = 0; r < GRID_SIZE; r++) {
+            if (state.regions[q][r] == region || state.stacks[q][r]) {
+                continue;
+            }
+            state.tile_state->tiles[q][r] = false;
+        }
+    }
+
+    // We changed core information, so derive
+    State_derive(&state);
+
+    State_print(&state, stdout);
+
+    // DFS to fill up region
+    struct State state_stack[INITIAL_STACK];
+    struct TileState tilestate_stack[INITIAL_STACK];
+    struct Action actions_stack[INITIAL_STACK];
+    int sp = 0;
+
+    State_copy(&state, &state_stack[sp], &tilestate_stack[sp]);
+    region_fill_dfs(&state);
 }
