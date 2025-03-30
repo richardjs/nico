@@ -37,6 +37,18 @@ void think(
         State_normalize(&after);
         State_to_string(&after, state_string);
         fprintf(stderr, "next:\t%s\n", state_string);
+
+        enum Player winner = State_winner(&after);
+        if (winner != NO_WINNER) {
+            if (winner == state->turn) {
+                fprintf(stderr, "result: win\n");
+            } else if (winner == !state->turn) {
+                fprintf(stderr, "result: loss\n");
+            } else {
+                fprintf(stderr, "result: draw\n");
+            }
+        }
+
         return;
     }
 
@@ -150,4 +162,15 @@ void think(
     State_normalize(&after);
     State_to_string(&after, state_string);
     fprintf(stderr, "next:\t%s\n", state_string);
+
+    enum Player winner = State_winner(&after);
+    if (winner != NO_WINNER) {
+        if (winner == state->turn) {
+            fprintf(stderr, "result: win\n");
+        } else if (winner == !state->turn) {
+            fprintf(stderr, "result: loss\n");
+        } else {
+            fprintf(stderr, "result: draw\n");
+        }
+    }
 }
