@@ -169,11 +169,11 @@ def main():
         invocation.append("-W")
 
     if args.iterations:
-        invocation += ["-i", args.iterations]
+        invocation += ["-i", str(args.iterations)]
     if args.seconds:
-        invocation += ["-e", args.seconds]
+        invocation += ["-e", str(args.seconds)]
     if args.workers:
-        invocation += ["-w", args.workers]
+        invocation += ["-w", str(args.workers)]
 
     if args.state:
         state = State(args.state)
