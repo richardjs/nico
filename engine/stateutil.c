@@ -8,8 +8,11 @@
 #include "stateio.h"
 
 uint8_t region_flood_fill(
-    const struct State* state, const struct Coords* start,
-    struct Coords hexes[MAX_TILE_HEXES], uint8_t available[NUM_PLAYERS]);
+    const struct State* state,
+    const struct Coords* start,
+    struct Coords hexes[MAX_TILE_HEXES],
+    uint8_t available[NUM_PLAYERS],
+    uint8_t single_available[NUM_PLAYERS]);
 
 void State_derive(struct State* state)
 {
@@ -25,16 +28,18 @@ void State_derive(struct State* state)
 
     state->regionc = 0;
 
-    // Set all hexes to MAX_REGIONS + 1 so we can track where we've calculated
+    // Set all hexes to NO_REGION so we can track where we've calculated
     for (int q = 0; q < GRID_SIZE; q++) {
         for (int r = 0; r < GRID_SIZE; r++) {
-            state->regions[q][r] = MAX_REGIONS + 1;
+            state->regions[q][r] = NO_REGION;
         }
     }
 
+    // regions
     struct Coords start;
     struct Coords hexes[MAX_TILE_HEXES];
     uint8_t available[NUM_PLAYERS];
+    uint8_t single_available[NUM_PLAYERS];
     for (int q = 0; q < GRID_SIZE; q++) {
         for (int r = 0; r < GRID_SIZE; r++) {
             if (!state->tile_state->tiles[q][r]) {
@@ -49,7 +54,7 @@ void State_derive(struct State* state)
 
             start.q = q;
             start.r = r;
-            int hexc = region_flood_fill(state, &start, hexes, available);
+            int hexc = region_flood_fill(state, &start, hexes, available, single_available);
 
             uint8_t region = state->regionc++;
             state->region_size[region] = hexc;
@@ -58,6 +63,50 @@ void State_derive(struct State* state)
             }
             state->region_available[region][P1] = available[P1] < hexc ? available[P1] : hexc;
             state->region_available[region][P2] = available[P2] < hexc ? available[P2] : hexc;
+            state->region_single_available[region][P1] = single_available[P1] < hexc ? single_available[P1] : hexc;
+            state->region_single_available[region][P2] = single_available[P2] < hexc ? single_available[P2] : hexc;
+        }
+    }
+
+    // quick_usable
+    for (int p = 0; p < NUM_PLAYERS; p++) {
+        state->quick_usable[p] = 0;
+
+        for (int i = 0; i < state->player_stackc[p]; i++) {
+            struct Coords* stack_coords = &state->player_stacks[p][i];
+            uint8_t stack_size = state->stacks[stack_coords->q][stack_coords->r];
+
+            if (stack_size == 1) {
+                continue;
+            }
+
+            uint8_t stack_remaining = stack_size;
+
+            // Look for adjacent regions
+            struct Coords walk;
+            // We only want to count each region once, so keep track of crumbs
+            bool region_crumbs[MAX_REGIONS] = { false };
+            for (int d = 0; d < NUM_DIRECTIONS; d++) {
+
+                walk = *stack_coords;
+                Coords_move(&walk, d);
+
+                uint8_t region = state->regions[walk.q][walk.r];
+                if (region == NO_REGION || region_crumbs[region]) {
+                    continue;
+                }
+                region_crumbs[region] = true;
+
+                // TODO this could be refined by tracking remaining hexes for each region between stacks
+                uint8_t region_size = state->region_size[region];
+                if (region_size >= stack_size - 1) {
+                    state->quick_usable[p] += stack_size - 1;
+                    break;
+                } else {
+                    state->quick_usable[p] += region_size;
+                    stack_size -= region_size;
+                }
+            }
         }
     }
 }

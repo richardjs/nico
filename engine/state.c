@@ -7,11 +7,16 @@ enum Player State_stack_player(const struct State* state, const struct Coords* c
 void State_derive(struct State* state);
 
 uint8_t region_flood_fill(
-    const struct State* state, const struct Coords* start,
-    struct Coords hexes[MAX_TILE_HEXES], uint8_t available[NUM_PLAYERS])
+    const struct State* state,
+    const struct Coords* start,
+    struct Coords hexes[MAX_TILE_HEXES],
+    uint8_t available[NUM_PLAYERS],
+    uint8_t single_available[NUM_PLAYERS])
 {
     available[P1] = 0;
     available[P2] = 0;
+    single_available[P1] = 0;
+    single_available[P2] = 0;
 
     struct Coords stack[MAX_TILE_HEXES];
     int stackc = 0;
@@ -43,8 +48,9 @@ uint8_t region_flood_fill(
             if (walk_stacks) {
                 if (walk_stacks > 1 && !available_crumbs[walk.q][walk.r]) {
                     enum Player walk_player = State_stack_player(state, &walk);
-                    if ((walk_stacks - 1) > available[walk_player]) {
-                        available[walk_player] = walk_stacks - 1;
+                    available[walk_player] += walk_stacks - 1;
+                    if ((walk_stacks - 1) > single_available[walk_player]) {
+                        single_available[walk_player] = walk_stacks - 1;
                     }
                     available_crumbs[walk.q][walk.r] = true;
                 }
@@ -309,37 +315,37 @@ void State_place_act(struct State* state, const struct Action* action)
     state->remaining_tiles[state->turn]--;
 }
 
-void State_update_regions_from_coords(struct State* state, const struct Coords* coords)
-{
-    struct Coords walk;
-    struct Coords hexes[MAX_TILE_HEXES];
-    int hexc;
-    uint8_t available[NUM_PLAYERS];
-
-    bool crumbs[GRID_SIZE][GRID_SIZE] = { false };
-
-    for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
-        walk = *coords;
-        Coords_move(&walk, d);
-
-        if (crumbs[walk.q][walk.r]) {
-            continue;
-        }
-
-        uint8_t previous_region = state->regions[walk.q][walk.r];
-
-        hexc = region_flood_fill(state, &walk, hexes, available);
-
-        // If the region has changed size, then it's been
-        if (hexc != state->region_size[previous_region]) {
-            for (int i = 0; i < hexc; i++) {
-                struct Coords* c = &hexes[i];
-                crumbs[c->q][c->r] = true;
-                // TODO
-            }
-        }
-    }
-}
+// void State_update_regions_from_coords(struct State* state, const struct Coords* coords)
+//{
+//     struct Coords walk;
+//     struct Coords hexes[MAX_TILE_HEXES];
+//     int hexc;
+//     uint8_t available[NUM_PLAYERS];
+//
+//     bool crumbs[GRID_SIZE][GRID_SIZE] = { false };
+//
+//     for (enum Direction d = 0; d < NUM_DIRECTIONS; d++) {
+//         walk = *coords;
+//         Coords_move(&walk, d);
+//
+//         if (crumbs[walk.q][walk.r]) {
+//             continue;
+//         }
+//
+//         uint8_t previous_region = state->regions[walk.q][walk.r];
+//
+//         hexc = region_flood_fill(state, &walk, hexes, available);
+//
+//         // If the region has changed size, then it's been
+//         if (hexc != state->region_size[previous_region]) {
+//             for (int i = 0; i < hexc; i++) {
+//                 struct Coords* c = &hexes[i];
+//                 crumbs[c->q][c->r] = true;
+//                 // TODO
+//             }
+//         }
+//     }
+// }
 
 // Create a new stack of a given size at a given hex,
 void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8_t count)
@@ -348,7 +354,8 @@ void State_new_stack_hex(struct State* state, const struct Coords* coords, uint8
 
     state->player_stacks[state->turn][state->player_stackc[state->turn]++] = *coords;
 
-    State_update_regions_from_coords(state, coords);
+    // TODO
+    // State_update_regions_from_coords(state, coords);
 }
 
 void State_act(struct State* state, const struct Action* action)

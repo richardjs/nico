@@ -23,6 +23,7 @@
 // Regions are discrete empty areas of the board, divided by stacks
 // TODO We can probably prove a lower number than this
 #define MAX_REGIONS 16
+#define NO_REGION (MAX_REGIONS + 1)
 
 enum Player {
     P1 = 0,
@@ -74,9 +75,14 @@ struct State {
     uint8_t regions[GRID_SIZE][GRID_SIZE];
     uint8_t region_size[MAX_REGIONS];
     // Number each player has available to move into the region'
-    // NOTE: Currently this only is the availability from a single stack
     uint8_t region_available[MAX_REGIONS][NUM_PLAYERS];
+    // Same as above, but only using a single stack (the greatest)
+    uint8_t region_single_available[MAX_REGIONS][NUM_PLAYERS];
     uint8_t regionc;
+
+    // Sum of [min(stack size - 1, adjacent region area) for all player stacks]
+    // Quick to calculate, and can be used for early termination
+    uint8_t quick_usable[NUM_PLAYERS];
 };
 
 void State_new(struct State* state, struct TileState* tile_state);

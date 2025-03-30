@@ -3,7 +3,7 @@
 
 #include "state.h"
 
-#define DEFAULT_ITERATIONS 10000
+#define DEFAULT_ITERATIONS 50000
 #define DEFAULT_MAX_SIM_DEPTH 300
 #define DEFAULT_UCTC .4
 #define DEFAULT_SAVE_TREE false

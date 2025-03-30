@@ -13,47 +13,39 @@
 
 enum Player State_early_winner(const struct State* state)
 {
+    // TODO make distinction betweet region_flood_fill best single and total available
+
     // Don't check in the placement phases
     if (state->player_stackc[state->turn] == 0) {
         return NO_WINNER;
     }
 
     uint8_t p1_score = state->player_stackc[P1];
+    uint8_t p1_usable = state->quick_usable[P1];
+
     uint8_t p2_score = state->player_stackc[P2];
+    uint8_t p2_usable = state->quick_usable[P2];
 
     uint8_t p1_available;
     uint8_t p2_available;
     uint8_t p1_best_uncontested = 0;
     uint8_t p2_best_uncontested = 0;
-    uint8_t p1_total_available = 0;
-    uint8_t p2_total_available = 0;
     for (int i = 0; i < state->regionc; i++) {
-        p1_available = state->region_available[i][P1];
-        p2_available = state->region_available[i][P2];
+        p1_available = state->region_single_available[i][P1];
+        p2_available = state->region_single_available[i][P2];
 
         if (p2_available == 0 && p1_available > p1_best_uncontested) {
             p1_best_uncontested = p1_available;
         } else if (p1_available == 0 && p2_available > p2_best_uncontested) {
             p2_best_uncontested = p2_available;
         }
-
-        p1_total_available += p1_available;
-        p2_total_available += p2_available;
-
-        // printf("region %d size %d available: %d %d\n", i, state->region_size[i], p1_available, p2_available);
     }
 
-    // printf("%d+%d (%d) %d+%d (%d)\n", p1_score, p1_best_uncontested, p1_total_available, p2_score, p2_best_uncontested, p2_total_available);
-    // State_print(state, stdout);
-
-    if (p1_score + p1_best_uncontested > p2_score + p2_total_available) {
+    if (p1_score + p1_best_uncontested > p2_score + p2_usable) {
         return P1;
-    } else if (p2_score + p2_best_uncontested > p1_score + p1_total_available) {
-        return P2;
     }
-    // TODO we can probably refine this
-    else if (p1_score + p1_best_uncontested == 16 && p2_score + p2_best_uncontested == 16) {
-        return DRAW;
+    if (p2_score + p2_best_uncontested > p1_score + p1_usable) {
+        return P2;
     }
 
     return NO_WINNER;
@@ -73,6 +65,11 @@ float State_simulate(struct State* state,
     bool other_player_passed = false;
     enum Player winner;
     while (1) {
+        if (other_player_passed && state->player_stackc[state->turn] > state->player_stackc[!state->turn]) {
+            winner = state->turn;
+            goto have_winner;
+        }
+
         struct Action* action = &actions[rand() % actionc];
 
         if (actionc == 1 && action->count == PASS_ACTION) {

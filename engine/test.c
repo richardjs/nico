@@ -36,7 +36,13 @@ void State_print_raw_stack_grid(struct State* state)
 void State_print_regions(struct State* state)
 {
     for (int i = 0; i < state->regionc; i++) {
-        printf("region %d size=%d available=%d/%d\n", i, state->region_size[i], state->region_available[i][P1], state->region_available[i][P2]);
+        printf("region %d s=%d a=%d(%d)/%d(%d)\n",
+            i,
+            state->region_size[i],
+            state->region_available[i][P1],
+            state->region_single_available[i][P1],
+            state->region_available[i][P2],
+            state->region_single_available[i][P2]);
     }
 }
 
