@@ -8,6 +8,7 @@
 
 #include "mcts.h"
 #include "state.h"
+#include "stateutil.h"
 #include "stateio.h"
 #include "think.h"
 
@@ -38,8 +39,8 @@ void think(
         State_to_string(&after, state_string);
         fprintf(stderr, "next:\t%s\n", state_string);
 
-        enum Player winner = State_winner(&after);
-        if (winner != NO_WINNER) {
+        if (State_terminal(&after)) {
+            enum Player winner = State_winner(&after);
             if (winner == state->turn) {
                 fprintf(stderr, "result: win\n");
             } else if (winner == !state->turn) {
@@ -163,8 +164,8 @@ void think(
     State_to_string(&after, state_string);
     fprintf(stderr, "next:\t%s\n", state_string);
 
-    enum Player winner = State_winner(&after);
-    if (winner != NO_WINNER) {
+    if (State_terminal(&after)) {
+        enum Player winner = State_winner(&after);
         if (winner == state->turn) {
             fprintf(stderr, "result: win\n");
         } else if (winner == !state->turn) {
