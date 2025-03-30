@@ -134,6 +134,7 @@ def main():
     parser.add_argument("state", nargs="?", default="")
 
     parser.add_argument("/a", "//act")
+    parser.add_argument("/e", "//seconds", type=int)
     parser.add_argument("/i", "//iterations", type=int)
     parser.add_argument("/w", "//workers", type=int)
 
@@ -169,6 +170,10 @@ def main():
 
     if args.iterations:
         invocation += ["-i", args.iterations]
+    if args.seconds:
+        invocation += ["-e", args.seconds]
+    if args.workers:
+        invocation += ["-w", args.workers]
 
     if args.state:
         state = State(args.state)

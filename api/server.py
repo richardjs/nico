@@ -70,6 +70,6 @@ async def state_think(
         iterations = max(iterations, MIN_ITERATIONS)
 
     # action, stderr = engine(f"-t", "-w", str(workers), "-i", str(iterations), str(state))
-    action, stderr = engine(f"/t", str(state))
+    action, stderr = engine("/e", "3", "/w", "4", "/t", str(state))
 
     return ThinkResponse(action=str(action), log=stderr)
