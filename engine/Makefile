@@ -4,6 +4,7 @@ LDFLAGS=-lm
 objects=coords.o mcts.o simulate.o state.o stateio.o stateutil.o think.o tile.o
 
 nico: $(objects)
+	cc -std=gnu17 -Wall -O3  nico.c $(objects)  -lm  -o nico
 
 test: $(objects)
 
