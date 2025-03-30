@@ -102,6 +102,12 @@ float iterate(struct Node* root, struct State* state)
 
     // Terminal state
     enum Player winner = State_early_winner(state);
+    if (winner == NO_WINNER) {
+        // TODO this is inefficient
+        if (State_terminal(state)) {
+            winner = State_winner(state);
+        }
+    }
     if (winner != NO_WINNER) {
         // if (root->children_count == 1 && State_terminal(state)) {
         root->visits++;
