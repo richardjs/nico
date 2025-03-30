@@ -95,7 +95,6 @@ void think(
     memset(top_actionis, -1, sizeof(int) * TOP_ACTIONS);
     for (int i = 0; i < actionc; i++) {
         float score = -1 * results->nodes[i].value / results->nodes[i].visits;
-        printf("%f\n", score);
 
         if (score >= results->score) {
             results->score = score;
