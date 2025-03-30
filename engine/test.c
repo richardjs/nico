@@ -482,6 +482,15 @@ int main()
         }
     }
 
+    // This shouldn't evaluate as -inf
+    //{
+    //    char test_state_string[] = "1,4|2,4|1,5|0,5|3,3|3,2|4,2|4,3|3,4|4,4|3,5|2,5|5,3|6,2|6,3|7,2|1,3|1,2|2,2|2,3|5,1|5,0|6,0|6,1|3,1|2,1|3,0|4,0|5,4|5,5|6,4|6,5|6,0h1|4,4t4|1,5h2|1,4t1|3,5h3|6,2t1|3,0h1|2,4t1|3,3h1|3,4t1|3,2h1|2,5t1|0,5h2|2,3t1|1,2h1|1,3t2|2,2h1|5,3t2|4,2h1|4,3t1|3,1h1|6,4t1|6,1h1|t";
+    //    State_from_string(&state, &tile_state, test_state_string);
+    //    State_print(&state, stdout);
+    //    State_print_regions(&state);
+    //    printf("%d\n", State_early_winner(&state));
+    //}
+
     puts("Done!");
 
     return 0;

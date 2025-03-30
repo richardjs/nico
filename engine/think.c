@@ -95,6 +95,7 @@ void think(
     memset(top_actionis, -1, sizeof(int) * TOP_ACTIONS);
     for (int i = 0; i < actionc; i++) {
         float score = -1 * results->nodes[i].value / results->nodes[i].visits;
+        printf("%f\n", score);
 
         if (score >= results->score) {
             results->score = score;
@@ -133,11 +134,11 @@ void think(
         results->stats.duration
             ? 1000 * results->stats.iterations / results->stats.duration
             : 0);
-    fprintf(stderr, "actions:\t%ld\n", actionc);
+    fprintf(stderr, "actions:\t%d\n", actionc);
     fprintf(stderr, "action iters:\t%d\n", results->nodes[results->actioni].visits);
     fprintf(stderr, "mean sim depth:\t%.2f\n", results->stats.mean_sim_depth);
     fprintf(stderr, "simulations:\t%d\n", results->stats.simulations);
-    fprintf(stderr, "early terms:\t%d\n", results->stats.early_terminations);
+    fprintf(stderr, "early terms:\t%ld\n", results->stats.early_terminations);
     fprintf(
         stderr, "tree size:\t%ld MiB\n", results->stats.tree_bytes / 1024 / 1024);
 

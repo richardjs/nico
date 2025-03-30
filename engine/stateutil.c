@@ -80,8 +80,6 @@ void State_derive(struct State* state)
                 continue;
             }
 
-            uint8_t stack_remaining = stack_size;
-
             // Look for adjacent regions
             struct Coords walk;
             // We only want to count each region once, so keep track of crumbs
@@ -317,35 +315,35 @@ int region_fill_dfs(const struct State* state)
     return -1;
 }
 
-void State_fill_uncontested_region_action(const struct State* s, struct Action* action)
-{
-    struct State state;
-    struct TileState tile_state;
-    State_copy(s, &state, &tile_state);
-
-    uint8_t region = State_best_uncontested_region(&state);
-
-    // Remove all hexes except those in the region (and those under stacks)
-    for (int q = 0; q < GRID_SIZE; q++) {
-        for (int r = 0; r < GRID_SIZE; r++) {
-            if (state.regions[q][r] == region || state.stacks[q][r]) {
-                continue;
-            }
-            state.tile_state->tiles[q][r] = false;
-        }
-    }
-
-    // We changed core information, so derive
-    State_derive(&state);
-
-    State_print(&state, stdout);
-
-    // DFS to fill up region
-    struct State state_stack[INITIAL_STACK];
-    struct TileState tilestate_stack[INITIAL_STACK];
-    struct Action actions_stack[INITIAL_STACK];
-    int sp = 0;
-
-    State_copy(&state, &state_stack[sp], &tilestate_stack[sp]);
-    region_fill_dfs(&state);
-}
+//void State_fill_uncontested_region_action(const struct State* s, struct Action* action)
+//{
+//    struct State state;
+//    struct TileState tile_state;
+//    State_copy(s, &state, &tile_state);
+//
+//    uint8_t region = State_best_uncontested_region(&state);
+//
+//    // Remove all hexes except those in the region (and those under stacks)
+//    for (int q = 0; q < GRID_SIZE; q++) {
+//        for (int r = 0; r < GRID_SIZE; r++) {
+//            if (state.regions[q][r] == region || state.stacks[q][r]) {
+//                continue;
+//            }
+//            state.tile_state->tiles[q][r] = false;
+//        }
+//    }
+//
+//    // We changed core information, so derive
+//    State_derive(&state);
+//
+//    State_print(&state, stdout);
+//
+//    // DFS to fill up region
+//    struct State state_stack[INITIAL_STACK];
+//    struct TileState tilestate_stack[INITIAL_STACK];
+//    struct Action actions_stack[INITIAL_STACK];
+//    int sp = 0;
+//
+//    State_copy(&state, &state_stack[sp], &tilestate_stack[sp]);
+//    region_fill_dfs(&state);
+//}

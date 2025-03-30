@@ -110,13 +110,14 @@ float iterate(struct Node* root, struct State* state)
         enum Player winner = State_early_winner(state);
 
         float value;
-        if (winner == DRAW) {
-            value = 0;
-            // TODO double-check that this all lines up
-        } else if (winner == state->turn) {
-            value = 1.0;
+        if (winner == state->turn) {
+            root->visits++;
+            root->value += 1.0;
+            return 1.0;
         } else {
-            value = -1.0;
+            root->visits++;
+            root->value += -1.0;
+            return -1.0;
         }
 
         root->value += value;

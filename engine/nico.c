@@ -111,7 +111,6 @@ int main(int argc, char* argv[])
         int actionc = State_actions(&state, actions);
 
         char state_string[STATE_STRING_SIZE];
-        char action_string[ACTION_STRING_SIZE];
 
         switch (command) {
         case NONE:
@@ -177,6 +176,8 @@ int main(int argc, char* argv[])
                 break;
             case DRAW:
                 puts("draw");
+                break;
+            case NO_WINNER:
                 break;
             }
             return 0;
